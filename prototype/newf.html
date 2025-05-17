@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>健身运动应用</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .iphone-frame {
+            width: 375px;
+            height: 812px;
+            background-color: #000;
+            border-radius: 55px;
+            padding: 15px;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        }
+        
+        .notch {
+            position: absolute;
+            width: 150px;
+            height: 30px;
+            background-color: #000;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            z-index: 10;
+        }
+        
+        .screen {
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            border-radius: 40px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .status-bar {
+            height: 44px;
+            background-color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .time {
+            margin-left: 30px;
+        }
+        
+        .battery {
+            display: flex;
+            align-items: center;
+        }
+        
+        .battery-icon {
+            width: 25px;
+            height: 12px;
+            border: 1px solid #000;
+            border-radius: 3px;
+            padding: 1px;
+            margin-left: 5px;
+            position: relative;
+        }
+        
+        .battery-icon:after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 4px;
+            background: #000;
+            right: -3px;
+            top: 3px;
+        }
+        
+        .battery-level {
+            height: 100%;
+            width: 90%;
+            background-color: #000;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #fff;
+        }
+        
+        .back-button {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+        
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .search-bar {
+            margin: 0 15px;
+            background-color: #f5f5f5;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            color: #999;
+            border: 1px solid #eee;
+        }
+        
+        .search-icon {
+            margin-right: 5px;
+            color: #ff5722;
+        }
+        
+        .search-button {
+            background-color: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 5px 10px;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+        
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 15px;
+            background-color: #fff;
+        }
+        
+        .category {
+            width: 20%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .category-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 20px;
+            color: #fff;
+        }
+        
+        .category-name {
+            font-size: 12px;
+            color: #333;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            background-color: #fff;
+        }
+        
+        .tab {
+            padding: 10px 15px;
+            font-size: 14px;
+            color: #666;
+            position: relative;
+        }
+        
+        .tab.active {
+            color: #ff5722;
+            font-weight: bold;
+        }
+        
+        .tab.active:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 15px;
+            right: 15px;
+            height: 2px;
+            background-color: #ff5722;
+        }
+        
+        .filters {
+            display: flex;
+            padding: 10px 15px;
+            background-color: #fff;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .filter {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .filter-icon {
+            margin-left: 3px;
+        }
+        
+        .merchants {
+            background-color: #fff;
+            padding: 0 15px;
+        }
+        
+        .merchant {
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+        }
+        
+        .merchant-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            margin-right: 10px;
+            overflow: hidden;
+        }
+        
+        .merchant-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .merchant-info {
+            flex: 1;
+        }
+        
+        .merchant-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .merchant-badge {
+            background-color: #ff9800;
+            color: white;
+            font-size: 10px;
+            padding: 2px 4px;
+            border-radius: 3px;
+            margin-left: 5px;
+        }
+        
+        .merchant-rating {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+        
+        .stars {
+            color: #ff5722;
+            margin-right: 5px;
+        }
+        
+        .merchant-price {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .merchant-location {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+        
+        .merchant-tags {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .merchant-tag {
+            font-size: 10px;
+            color: #ff5722;
+            background-color: #fff2ee;
+            padding: 2px 5px;
+            border-radius: 3px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        
+        .merchant-distance {
+            position: absolute;
+            right: 15px;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .merchant-deals {
+            margin-top: 5px;
+        }
+        
+        .deal {
+            display: inline-block;
+            margin-right: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .deal-price {
+            color: #ff5722;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .deal-original {
+            color: #999;
+            font-size: 12px;
+            text-decoration: line-through;
+            margin-left: 5px;
+        }
+        
+        .deal-discount {
+            background-color: #fff2ee;
+            color: #ff5722;
+            font-size: 10px;
+            padding: 1px 3px;
+            border-radius: 3px;
+            margin-right: 5px;
+        }
+        
+        .deal-name {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .icon-fitness {
+            background-color: #4285f4;
+        }
+        
+        .icon-swim {
+            background-color: #34a853;
+        }
+        
+        .icon-badminton {
+            background-color: #fbbc05;
+        }
+        
+        .icon-billiards {
+            background-color: #ea4335;
+        }
+        
+        .icon-racing {
+            background-color: #ff5722;
+        }
+        
+        .icon-martial {
+            background-color: #9c27b0;
+        }
+        
+        .icon-ball {
+            background-color: #ff9800;
+        }
+        
+        .icon-boxing {
+            background-color: #795548;
+        }
+        
+        .icon-coach {
+            background-color: #607d8b;
+        }
+        
+        .icon-football {
+            background-color: #3f51b5;
+        }
+    </style>
+</head>
+<body>
+    <div class="iphone-frame">
+        <div class="notch"></div>
+        <div class="screen">
+            <div class="status-bar">
+                <div class="time">10:04</div>
+                <div class="battery">
+                    <span>96</span>
+                    <div class="battery-icon">
+                        <div class="battery-level"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header">
+                <div class="back-button">&#8249;</div>
+                <div class="title">健身运动</div>
+            </div>
+            
+            <div class="search-bar">
+                <span class="search-icon">&#128269;</span>
+                <span>输入商户/玩乐项目等</span>
+                <button class="search-button">搜索</button>
+            </div>
+            
+            <div class="categories">
+                <div class="category">
+                    <div class="category-icon icon-fitness">🏋️</div>
+                    <div class="category-name">健身中心</div>
+                </div>
+                <div class="category">
+                    <div class="category-icon icon-swim">🏊</div>
+                    <div class="category-name">游泳</div>
+                </div>
+                <div class="category">
+                    <div class="category-icon icon-badminton">🏸</div>
+                    <div class="category-name">羽毛球</div>
+                </div>
+                <div class="category">
+                    <div class="category-icon icon-billiards">🎱</div>
+                    <div class="category-name">台球</div>
+                </div>
+                <div class="category">
+                    <div class="category-icon icon-racing">🏎️</div>
+                    <div class="category-name">赛车</div>
+                </div>
+                <div class="category">
+                    <div class="category-icon icon-martial">🥋</div>
+                    <div class="category-name">武术搏击</div>
+                </div>
+                <div class="category">
+                    <div class="category-icon icon-ball">🏀</div>
+                    <div class="category-name">球类运动</div>
+                </div>
+                <div class="category">
+                    <div class="category-icon icon-boxing">🥊</div>
+                    <div class="category-name">拳击</div>
+                </div>
+                <div class="category">
+                    <div class="category-icon icon-coach">👨‍🏫</div>
+                    <div class="category-name">找教练</div>
+                </div>
+                <div class="category">
+                    <div class="category-icon icon-football">⚽</div>
+                    <div class="category-name">足球</div>
+                </div>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active">运动商户</div>
+                <div class="tab">运动攻略</div>
+            </div>
+            
+            <div class="filters">
+                <div class="filter">
+                    <span>溪西山尾</span>
+                    <span class="filter-icon">▼</span>
+                </div>
+                <div class="filter">
+                    <span>全部分类</span>
+                    <span class="filter-icon">▼</span>
+                </div>
+                <div class="filter">
+                    <span>智能排序</span>
+                    <span class="filter-icon">▼</span>
+                </div>
+                <div class="filter">
+                    <span>安心练</span>
+                </div>
+            </div>
+            
+            <div class="merchants">
+                <div class="merchant">
+                    <div class="merchant-image">
+                        <div style="width:100%;height:100%;background:#ffcdd2;display:flex;align-items:center;justify-content:center;color:#e57373;font-weight:bold;">艾莉</div>
+                    </div>
+                    <div class="merchant-info">
+                        <div class="merchant-name">
+                            艾莉可可女子健身普拉提 <span class="merchant-badge">🍊</span>
+                        </div>
+                        <div class="merchant-rating">
+                            <div class="stars">★★★★★</div>
+                            <span>4.8</span>
+                            <span class="merchant-price">¥3375/人</span>
+                        </div>
+                        <div class="merchant-location">
+                            云城万科里 健身房
+                            <span class="merchant-distance">4.5km</span>
+                        </div>
+                        <div class="merchant-tags">
+                            <div class="merchant-tag">云城万科里健身中心好评榜第1名</div>
+                            <div class="merchant-tag">有专密机</div>
+                        </div>
+                        <div class="merchant-deals">
+                            <div class="deal">
+                                <span class="deal-discount">3.2折</span>
+                                <span class="deal-price">¥120</span>
+                                <span class="deal-original">¥380</span>
+                                <span class="deal-name">【普拉提私教】减脂｜塑形</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="merchant">
+                    <div class="merchant-image">
+                        <div style="width:100%;height:100%;background:#ffe0b2;display:flex;align-items:center;justify-content:center;color:#ff9800;font-weight:bold;">猎鹰</div>
+                    </div>
+                    <div class="merchant-info">
+                        <div class="merchant-name">
+                            厦门猎鹰实弹射击俱乐部 <span class="merchant-badge">🍊</span>
+                        </div>
+                        <div class="merchant-rating">
+                            <div class="stars">★★★★☆</div>
+                            <span>4.4</span>
+                            <span class="merchant-price">¥141/人</span>
+                        </div>
+                        <div class="merchant-location">
+                            集美万达广场 前箭馆
+                            <span class="merchant-distance">7.7km</span>
+                        </div>
+                        <div class="merchant-tags">
+                            <div class="merchant-tag">厦门射箭馆最榜第1名</div>
+                            <div class="merchant-tag">4012人已收藏</div>
+                        </div>
+                        <div class="merchant-deals">
+                            <div class="deal">
+                                <span class="deal-price">¥151</span>
+                                <span class="deal-original">¥188</span>
+                                <span class="deal-name">双人射箭1小时(全周可用)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="merchant">
+                    <div class="merchant-image">
+                        <div style="width:100%;height:100%;background:#e8f5e9;display:flex;align-items:center;justify-content:center;color:#66bb6a;font-weight:bold;">超鹿</div>
+                    </div>
+                    <div class="merchant-info">
+                        <div class="merchant-name">
+                            超鹿运动(软件园三期店) <span class="merchant-badge">🍊</span>
+                        </div>
+                        <div class="merchant-rating">
+                            <div class="stars">★★★★☆</div>
+                            <span>4.4</span>
+                            <span class="merchant-price">¥1842/人</span>
+                        </div>
+                        <div class="merchant-location">
+                            大学康城/吉林湾 健身房
+                            <span class="merchant-distance">13km</span>
+                        </div>
+                        <div class="merchant-tags">
+                            <div class="merchant-tag">软件园健身中心值得榜第2名</div>
+                        </div>
+                        <div class="merchant-deals">
+                            <div class="deal">
+                                <span class="deal-discount">0.4折</span>
+                                <span class="deal-price">¥99</span>
+                                <span class="deal-original">¥299</span>
+                                <span class="deal-name">【五日特惠】新人专享[1v1私教]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

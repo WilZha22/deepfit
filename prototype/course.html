@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课程列表-健身APP</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script>
+      // 页面加载完成后设置缩放比例为80%
+      window.onload = function() {
+        document.body.style.zoom = "80%";
+      }
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft Yahei', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: hsl(216, 20%, 95%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .iphone-frame {
+            position: relative;
+            width: 428px; /* iPhone 14 Pro Max width */
+            height: 926px; /* iPhone 14 Pro Max height */
+            background-color: #1c1c1e; /* Dark grey for the phone body */
+            border-radius: 55px; /* Rounded corners for the phone */
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            padding: 5px; /* Small padding for the bezel */
+            margin-top: 20px; /* Space from top */
+            margin-bottom: 20px; /* Space from bottom */
+        }
+
+        .iphone-screen {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: #f0f2f5; /* Screen background, matching the app's light grey */
+            border-radius: 48px; /* Inner screen rounded corners */
+            overflow: hidden; /* Clip content to screen */
+        }
+
+        /* Dynamic Island (灵动岛) instead of notch */
+        .dynamic-island {
+            position: absolute;
+            top: 12px; /* Position from top */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 126px; /* Width of Dynamic Island */
+            height: 37px; /* Height of Dynamic Island */
+            background-color: #000; /* Black color */
+            border-radius: 24px; /* Rounded corners */
+            z-index: 200; /* Above everything else on the screen */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Small indicator light in Dynamic Island */
+        .dynamic-island::after {
+            content: '';
+            position: absolute;
+            right: 28px;
+            width: 8px;
+            height: 8px;
+            background-color: #09c95e; /* Green indicator */
+            border-radius: 50%;
+        }
+
+        .app-container {
+            height: 100%;
+            overflow-y: auto; /* Allow scrolling within the app screen */
+            display: flex;
+            flex-direction: column;
+            position: relative; /* 确保相对定位子元素正确定位 */
+        }
+        
+        /* 确保所有应用内的绝对定位元素不会超出容器边界 */
+        .app-container * {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* Hide scrollbar for a cleaner look */
+        .app-container::-webkit-scrollbar {
+            display: none;
+        }
+        .app-container {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        .app-header-placeholder { /* Placeholder for status bar area */
+            height: 65px; /* Space for Dynamic Island + status bar */
+            width: 100%;
+        }
+        
+        .main-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 70px; /* Space for bottom tab bar */
+            position: relative; /* 为内部绝对定位元素提供参考 */
+        }
+        
+        .main-content::-webkit-scrollbar {
+            display: none;
+        }
+        .main-content {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        /* 浮窗样式 */
+        .promotion-banner {
+            position: absolute;
+            bottom: 70px;
+            left: 15px;
+            right: 15px;
+            max-width: 398px; /* 适应iPhone frame宽度 */
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        /* Status Bar iOS style */
+        .status-bar {
+            position: absolute;
+            top: 14px;
+            left: 0;
+            right: 0;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #000;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 150;
+        }
+
+        .status-time {
+            position: absolute;
+            left: 32px;
+        }
+
+        .status-indicators {
+            position: absolute;
+            right: 32px;
+            display: flex;
+            align-items: center;
+        }
+
+        .status-cell, .status-wifi, .status-battery {
+            margin-left: 8px;
+        }
+
+        /* 顶部导航栏 */
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f0f2f5;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* 课程类型选项卡 */
+        .course-tabs {
+            display: flex;
+            background-color: #fff;
+            padding: 10px 15px;
+            overflow-x: auto;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .course-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            padding: 8px 15px;
+            margin-right: 10px;
+            white-space: nowrap;
+            font-size: 14px;
+            color: #333;
+            border-radius: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .tab.active {
+            background-color: #8BC34A;
+            color: white;
+        }
+
+        /* 日期选择器 */
+        .date-selector {
+            display: flex;
+            background-color: #fff;
+            padding: 10px 0;
+            overflow-x: auto;
+            margin-bottom: 10px;
+        }
+
+        .date-selector::-webkit-scrollbar {
+            display: none;
+        }
+
+        .date-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 15px;
+            cursor: pointer;
+        }
+
+        .date-item.active .date-number {
+            background-color: #8BC34A;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .date-day {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .date-number {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 5px 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .date-weekday {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 筛选器 */
+        .filters {
+            display: flex;
+            padding: 10px 15px;
+            background-color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .filter {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .filter i {
+            margin-left: 5px;
+            font-size: 12px;
+        }
+
+        /* 课程列表 */
+        .course-list {
+            padding: 0 15px;
+        }
+
+        .course-item {
+            background-color: #fff;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .course-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .course-tag.body {
+            background-color: #FF9500;
+        }
+
+        .course-tag.rebirth {
+            background-color: #4CD964;
+        }
+
+        .course-level {
+            display: inline-block;
+            padding: 2px 6px;
+            background-color: #E3F2FD;
+            color: #2196F3;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .course-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 5px 0;
+            color: #333;
+        }
+
+        .course-desc {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .course-tags {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .tag-item {
+            font-size: 12px;
+            color: #666;
+            background-color: #f5f5f5;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .course-coach {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .coach-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        .coach-info {
+            flex-grow: 1;
+        }
+
+        .coach-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .course-time {
+            font-size: 12px;
+            color: #8BC34A;
+            font-weight: 500;
+        }
+
+        .course-status {
+            font-size: 12px;
+            color: #FF3B30;
+        }
+
+        .course-attendees {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .attendee-avatars {
+            display: flex;
+            margin-right: 10px;
+        }
+
+        .attendee-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            margin-left: -10px;
+            object-fit: cover;
+        }
+
+        .attendee-avatar:first-child {
+            margin-left: 0;
+        }
+
+        .attendee-count {
+            font-size: 12px;
+            color: #666;
+            background-color: #f5f5f5;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: -10px;
+        }
+
+        .course-action {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .action-button {
+            padding: 8px 20px;
+            background-color: #FF5722;
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* 底部导航栏 */
+        .bottom-tab-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 70px;
+            background-color: #fff;
+            border-top: 1px solid #e0e0e0;
+            position: absolute; /* Stick to bottom of app-container */
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #8e8e93; /* Default icon/text color */
+            font-size: 10px;
+            flex-grow: 1;
+            text-decoration: none;
+        }
+
+        .tab-item .fas {
+            font-size: 22px; /* Icon size */
+            margin-bottom: 3px;
+        }
+        .tab-item.active {
+            color: #000; /* Active icon/text color */
+        }
+
+        /* CTA Button in Tab Bar */
+        .tab-item-cta {
+            background: linear-gradient(45deg, #ff4e50, #f9d423); /* 火热的红橙黄渐变 */
+            color: #fff !important; /* White text */
+            padding: 0 20px; /* Horizontal padding */
+            height: 48px; /* Taller than other items */
+            border-radius: 24px; /* Pill shape */
+            font-size: 15px !important; /* 更大字体 */
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 0; /* Don't grow, fixed size based on content/padding */
+            flex-shrink: 0; /* Don't shrink */
+            margin: 0 5px; /* Spacing from neighbors */
+            animation: pulse-cta 1.5s infinite ease-in-out;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(255, 78, 80, 0.4); /* 红色阴影 */
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        /* 添加闪光效果 */
+        .tab-item-cta::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+            animation: shine 3s infinite linear;
+            z-index: -1;
+        }
+
+        /* 添加火焰效果 - 替换原来的表情符号 */
+        .tab-item-cta::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 28px;
+            background: linear-gradient(45deg, rgba(255, 69, 0, 0.6), rgba(255, 215, 0, 0.5));
+            z-index: -2;
+            filter: blur(8px);
+            opacity: 0.7;
+            animation: fire-glow 2s infinite alternate;
+        }
+
+        @keyframes fire-glow {
+            0% {
+                opacity: 0.5;
+                filter: blur(8px) brightness(1);
+            }
+            100% {
+                opacity: 0.8;
+                filter: blur(12px) brightness(1.2);
+            }
+        }
+
+        @keyframes shine {
+            0% {
+                left: -100%;
+                top: -100%;
+            }
+            100% {
+                left: 100%;
+                top: 100%;
+            }
+        }
+
+        @keyframes flicker {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .tab-item-cta:hover {
+            background: linear-gradient(45deg, #ff3019, #ff8e00); /* 更强烈的渐变色 */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 48, 25, 0.5);
+        }
+
+        .tab-item-cta .fas {
+            display: none; /* Ensure no icon is shown even if structure implies */
+        }
+
+        .tab-item-cta span {
+            margin-bottom: 0 !important; /* Override any margin from .tab-item span */
+            font-size: inherit !important;
+            color: inherit !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2); /* 文字阴影效果 */
+        }
+
+        @keyframes pulse-cta {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(255, 78, 80, 0.4);
+            }
+            50% {
+                transform: scale(1.08);
+                box-shadow: 0 6px 20px rgba(255, 48, 25, 0.6);
+            }
+        }
+
+        /* 私教页面特有样式 */
+        .banner-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .banner-image {
+            width: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        
+        .carousel-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            margin: 0 4px;
+        }
+        
+        .carousel-dot.active {
+            background-color: #fff;
+        }
+        
+        .pt-card {
+            background-color: #fff;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .pt-card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .crown-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f1e0;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        
+        .pt-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .level-badge {
+            display: inline-flex;
+            align-items: center;
+            background-color: #e8f5e9;
+            color: #4caf50;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+        
+        .new-badge {
+            display: inline-flex;
+            align-items: center;
+            background-color: #ffecb3;
+            color: #ff9800;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        
+        .pt-card-desc {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        
+        .pt-tags {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .pt-tag {
+            font-size: 12px;
+            color: #666;
+            background-color: #f5f5f5;
+            padding: 4px 10px;
+            border-radius: 15px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .pt-coaches {
+            display: flex;
+            margin-top: 10px;
+        }
+        
+        .pt-coach {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 15px;
+        }
+        
+        .pt-coach-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 6px;
+        }
+        
+        .pt-coach-name {
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .pt-session-time {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+        
+        .pt-time {
+            font-size: 18px;
+            font-weight: bold;
+            color: #8BC34A;
+        }
+        
+        .pt-countdown {
+            font-size: 14px;
+            color: #888;
+        }
+        
+        .pt-status-button {
+            padding: 8px 25px;
+            background-color: #ff5722;
+            color: white;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .pt-status-button.full {
+            background-color: #e0e0e0;
+            color: #666;
+        }
+        
+        /* 隐藏不活跃的内容 */
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        /* 导航高亮样式 */
+        .nav-link {
+            text-decoration: none;
+            margin-right: 15px;
+            color: #666;
+            font-size: 18px;
+            position: relative;
+        }
+        
+        .nav-link.active {
+            color: #000;
+            font-weight: bold;
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #8BC34A;
+        }
+    </style>
+</head>
+<body>
+    <div class="iphone-frame">
+        <div class="iphone-screen">
+            <!-- Dynamic Island -->
+            <div class="dynamic-island"></div>
+            
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-time">8:56</div>
+                <div class="status-indicators">
+                    <div class="status-cell">
+                        <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 0H2C0.9 0 0 0.9 0 2V10C0 11.1 0.9 12 2 12H16C17.1 12 18 11.1 18 10V2C18 0.9 17.1 0 16 0ZM11 10H2V2H11V10ZM16 10H12V2H16V10Z" fill="black"/>
+                        </svg>
+                    </div>
+                    <div class="status-wifi">
+                        <svg width="15" height="11" viewBox="0 0 15 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7.5 10.5C8.328 10.5 9 9.828 9 9C9 8.172 8.328 7.5 7.5 7.5C6.672 7.5 6 8.172 6 9C6 9.828 6.672 10.5 7.5 10.5Z" fill="black"/>
+                            <path d="M0 3C2.076 1.107 4.674 0 7.5 0C10.326 0 12.924 1.107 15 3L13.326 4.674C11.682 3.15 9.684 2.25 7.5 2.25C5.316 2.25 3.318 3.15 1.674 4.674L0 3Z" fill="black"/>
+                            <path d="M3 6C4.167 4.917 5.75 4.25 7.5 4.25C9.25 4.25 10.833 4.917 12 6L10.5 7.5C9.75 6.833 8.667 6.5 7.5 6.5C6.333 6.5 5.25 6.833 4.5 7.5L3 6Z" fill="black"/>
+                        </svg>
+                    </div>
+                    <div class="status-battery">
+                        <svg width="25" height="12" viewBox="0 0 25 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="black"/>
+                            <rect x="2" y="2" width="18" height="8" rx="1.5" fill="black"/>
+                            <path d="M23 4V8C23.8 7.66667 24.3333 7 24.5 6C24.3333 5 23.8 4.33333 23 4Z" fill="black"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="app-container">
+                <!-- App header placeholder replaces old status bar -->
+                <div class="app-header-placeholder"></div>
+
+                <!-- 顶部导航 -->
+                <div class="top-nav">
+                    <div style="display: flex; align-items: center;">
+                        <a href="#" class="nav-link" data-section="group-class">团课</a>
+                        <a href="#" class="nav-link active" data-section="personal-train">私教</a>
+                        
+                        <a href="#" class="nav-link" data-section="my-appointment">我的预约</a>
+                    </div>
+                    <div>
+                        <a href="#" style="text-decoration: none;">
+                            <i class="fas fa-ellipsis-h" style="color: #333;"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 主要内容区域 -->
+                <div class="main-content">
+                    <!-- 团课内容区域 -->
+                    <div id="group-class-content" class="content-section">
+                        <!-- 课程类型选项卡 -->
+                       
+
+                        <!-- 日期选择器 -->
+                        <div class="date-selector">
+                            <div class="date-item active">
+                                <span class="date-day">三</span>
+                                <span class="date-number">14</span>
+                                <span class="date-weekday">今天</span>
+                            </div>
+                            <div class="date-item">
+                                <span class="date-day">四</span>
+                                <span class="date-number">15</span>
+                                <span class="date-weekday"></span>
+                            </div>
+                            <div class="date-item">
+                                <span class="date-day">五</span>
+                                <span class="date-number">16</span>
+                                <span class="date-weekday"></span>
+                            </div>
+                            <div class="date-item">
+                                <span class="date-day">六</span>
+                                <span class="date-number">17</span>
+                                <span class="date-weekday"></span>
+                            </div>
+                            <div class="date-item">
+                                <span class="date-day">日</span>
+                                <span class="date-number">18</span>
+                                <span class="date-weekday"></span>
+                            </div>
+                            <div class="date-item">
+                                <span class="date-day">一</span>
+                                <span class="date-number">19</span>
+                                <span class="date-weekday"></span>
+                            </div>
+                            <div class="date-item">
+                                <span class="date-day">二</span>
+                                <span class="date-number">20</span>
+                                <span class="date-weekday"></span>
+                            </div>
+                        </div>
+
+                        <!-- 筛选器 -->
+                        <div class="filters">
+                            <div class="filter">
+                                开课时间 <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="filter">
+                                级别 <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="filter">
+                                教练 <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="filter" style="margin-left: auto;">
+                                更多筛选 <i class="fas fa-sliders-h"></i>
+                            </div>
+                        </div>
+
+                        <!-- 日期标题 -->
+                        <div style="padding: 10px 15px; font-size: 14px; color: #666;">
+                            5月14日 周三（今天）
+                        </div>
+
+                        <!-- 课程列表 -->
+                        <div class="course-list">
+                            <!-- 课程1 -->
+                            <div class="course-item" style="padding: 15px;">
+                                <div class="course-tag body">BODY 唤醒瑜伽</div>
+                                <div class="course-level">L1</div>
+                                <h3 class="course-title">BODY POISE.正念静动瑜伽.瑜伽理疗.BP103...</h3>
+                                <div class="course-desc">入门级课程，久坐党必练</div>
+                                <div class="course-tags">
+                                    <span class="tag-item">瑜伽</span>
+                                    <span class="tag-item">肩颈</span>
+                                    <span class="tag-item">背部</span>
+                                    <span class="tag-item">瑜伽垫</span>
+                                </div>
+                                <div class="course-coach">
+                                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Lily" class="coach-avatar">
+                                    <div class="coach-info">
+                                        <div class="coach-name">Lily</div>
+                                    </div>
+                                    <div class="attendee-avatars">
+                                        <img src="https://randomuser.me/api/portraits/men/32.jpg" class="attendee-avatar">
+                                        <img src="https://randomuser.me/api/portraits/women/68.jpg" class="attendee-avatar">
+                                        <img src="https://randomuser.me/api/portraits/men/43.jpg" class="attendee-avatar">
+                                        <div class="attendee-count">3+</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                                    <div>
+                                        <div class="course-time">早 08:30-09:00</div>
+                                        <div class="course-status">已开课 26分钟</div>
+                                    </div>
+                                    <div class="course-action">
+                                        <div class="action-button">训练开始</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 课程2 -->
+                            <div class="course-item" style="padding: 15px;">
+                                <div class="course-tag rebirth">REBIRTH 蜕变体态</div>
+                                <div class="course-level">L2</div>
+                                <h3 class="course-title">初级普拉提·脊柱灵活</h3>
+                                <div class="course-desc">灵活脊柱，强化脊柱功能。</div>
+                                <div class="course-tags">
+                                    <span class="tag-item">健身</span>
+                                    <span class="tag-item">背部</span>
+                                    <span class="tag-item">胸部</span>
+                                    <span class="tag-item">灵活</span>
+                                    <span class="tag-item">瑜伽垫</span>
+                                    <span class="tag-item">360平卡</span>
+                                </div>
+                                <div class="course-coach">
+                                    <img src="https://randomuser.me/api/portraits/women/28.jpg" alt="Aris" class="coach-avatar">
+                                    <div class="coach-info">
+                                        <div class="coach-name">Aris</div>
+                                    </div>
+                                    <div class="attendee-avatars">
+                                        <img src="https://randomuser.me/api/portraits/men/22.jpg" class="attendee-avatar">
+                                        <img src="https://randomuser.me/api/portraits/women/58.jpg" class="attendee-avatar">
+                                        <div class="attendee-count">2+</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                                    <div>
+                                        <div class="course-time">上午 10:30-11:30</div>
+                                        <div class="course-status" style="color: #8BC34A;">即将开始</div>
+                                    </div>
+                                    <div class="course-action">
+                                        <div class="action-button" style="background-color: #8BC34A;">立即预约</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 私教内容区域 -->
+                    <div id="personal-train-content" class="content-section active">
+                        <!-- 日期选择器 -->
+                        <div class="date-selector">
+                            <div class="date-item active">
+                                <span class="date-day">三</span>
+                                <span class="date-number">14</span>
+                                <span class="date-weekday">今天</span>
+                            </div>
+                            <div class="date-item">
+                                <span class="date-day">四</span>
+                                <span class="date-number">15</span>
+                                <span class="date-weekday"></span>
+                            </div>
+                            <div class="date-item">
+                                <span class="date-day">五</span>
+                                <span class="date-number">16</span>
+                                <span class="date-weekday"></span>
+                            </div>
+                            <div class="date-item">
+                                <span class="date-day">六</span>
+                                <span class="date-number">17</span>
+                                <span class="date-weekday"></span>
+                            </div>
+                            <div class="date-item">
+                                <span class="date-day">日</span>
+                                <span class="date-number">18</span>
+                                <span class="date-weekday"></span>
+                            </div>
+                            <div class="date-item">
+                                <span class="date-day">一</span>
+                                <span class="date-number">19</span>
+                                <span class="date-weekday"></span>
+                            </div>
+                            <div class="date-item">
+                                <span class="date-day">二</span>
+                                <span class="date-number">20</span>
+                                <span class="date-weekday"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- 日期标题 -->
+                        <div style="padding: 10px 15px; font-size: 14px; color: #666;">
+                            5月14日 周三（今天）
+                        </div>
+                        
+                        <!-- 私教列表 -->
+                        <div class="course-list">
+                            <!-- 私教课程1 -->
+                            <div class="pt-card" onclick="window.location.href='course_detail.html';" style="cursor: pointer;">
+                                <div class="pt-card-header">
+                                    <div class="crown-icon">
+                                        <i class="fas fa-crown" style="color: #d4af37;"></i>
+                                    </div>
+                                    <div class="pt-card-title">私教定制</div>
+                                </div>
+                                
+                                <div>
+                                    <span class="level-badge">M1</span>
+                                    <span class="new-badge">NEW</span>
+                                </div>
+                                
+                                <h3 class="course-title">肩胸伸展</h3>
+                                <div class="pt-card-desc">开肩，开胸，美背</div>
+                                
+                                <div class="pt-tags">
+                                    <span class="pt-tag">瑜伽</span>
+                                    <span class="pt-tag">背部</span>
+                                    <span class="pt-tag">肩颈</span>
+                                    <span class="pt-tag">手臂</span>
+                                    <span class="pt-tag">胸部</span>
+                                    <span class="pt-tag">腰腹</span>
+                                    <span class="pt-tag">瑜伽垫</span>
+                                    <span class="pt-tag">瑜伽球</span>
+                                </div>
+                                
+                                <div class="pt-coaches">
+                                    <div class="pt-coach">
+                                        <img src="https://randomuser.me/api/portraits/women/79.jpg" class="pt-coach-avatar">
+                                        <div class="pt-coach-name">Sundy</div>
+                                    </div>
+                                    
+                                    <div class="pt-coach" style="margin-left: auto;">
+                                        <img src="https://randomuser.me/api/portraits/women/65.jpg" class="pt-coach-avatar">
+                                        <div class="pt-coach-name">静姐</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="pt-session-time">
+                                    <div>
+                                        <div class="pt-time">晚 22:00-23:00</div>
+                                        <div class="pt-countdown">距离开课 13小时4分钟</div>
+                                    </div>
+                                    <div class="pt-status-button full">已满员</div>
+                                </div>
+                            </div>
+                            
+                            <!-- 私教课程2 -->
+                            <div class="pt-card" onclick="window.location.href='course_detail.html';" style="cursor: pointer;">
+                                <div class="pt-card-header">
+                                    <div class="crown-icon">
+                                        <i class="fas fa-crown" style="color: #d4af37;"></i>
+                                    </div>
+                                    <div class="pt-card-title">私教定制</div>
+                                </div>
+                                
+                                <div>
+                                    <span class="level-badge">L2</span>
+                                    <span class="new-badge">NEW</span>
+                                </div>
+                                
+                                <h3 class="course-title">臀腿训练波波</h3>
+                                <div class="pt-card-desc">臀腿训练</div>
+                                
+                                <div class="pt-tags">
+                                    <span class="pt-tag">健身</span>
+                                    <span class="pt-tag">腿部</span>
+                                    <span class="pt-tag">臀部</span>
+                                    <span class="pt-tag">瑜伽垫</span>
+                                </div>
+                                
+                                <div class="pt-coaches">
+                                    <div class="pt-coach">
+                                        <img src="https://randomuser.me/api/portraits/women/42.jpg" class="pt-coach-avatar">
+                                        <div class="pt-coach-name">佳琦</div>
+                                    </div>
+                                    
+                                    <div class="pt-coach" style="margin-left: auto;">
+                                        <img src="https://randomuser.me/api/portraits/women/33.jpg" class="pt-coach-avatar">
+                                        <div class="pt-coach-name">李波</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="pt-session-time">
+                                    <div>
+                                        <div class="pt-time">晚 20:00-21:00</div>
+                                        <div class="pt-countdown">距离开课 11小时4分钟</div>
+                                    </div>
+                                    <div class="pt-status-button">立即预约</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 底部推广条幅 - 修改定位方式 -->
+                        <div class="promotion-banner">
+                            <div style="display: flex; align-items: center;">
+                                <i class="fas fa-star-of-life" style="color: #8BC34A; margin-right: 10px;"></i>
+                                <span style="font-size: 14px;">关注公众号，deepFit最新资讯抢先看</span>
+                            </div>
+                            <div style="background-color: #8BC34A; color: white; padding: 5px 15px; border-radius: 4px; font-size: 14px;">
+                                立即关注
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 训练营内容区域 -->
+                    <div id="training-camp-content" class="content-section">
+                        <!-- 此处添加训练营内容 -->
+                        <div style="padding: 20px; text-align: center;">
+                            <h3>训练营内容 - 敬请期待</h3>
+                        </div>
+                    </div>
+                    
+                    <!-- 我的预约内容区域 -->
+                    <div id="my-appointment-content" class="content-section">
+                        <!-- 此处添加我的预约内容 -->
+                        <div style="padding: 20px; text-align: center;">
+                            <h3>我的预约内容 - 敬请期待</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部导航栏 -->
+                <div class="bottom-tab-bar">
+                    <a href="index.html" class="tab-item">
+                        <i class="fas fa-home"></i>
+                        <span>首页</span>
+                    </a>
+                    <a href="venues.html" class="tab-item">
+                        <i class="fas fa-dumbbell"></i>
+                        <span>场馆</span>
+                    </a>
+                    <a href="events.html" class="tab-item-cta">
+                        <span>热门赛事</span>
+                    </a>
+                    <a href="course.html" class="tab-item active">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>课程</span>
+                    </a>
+                    <a href="my.html" class="tab-item">
+                        <i class="fas fa-user"></i>
+                        <span>我的</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面交互逻辑
+        document.addEventListener('DOMContentLoaded', function() {
+            // 日期选择
+            const dateItems = document.querySelectorAll('.date-item');
+            dateItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    dateItems.forEach(di => di.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // 课程类型选择
+            const tabItems = document.querySelectorAll('.tab');
+            tabItems.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabItems.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // 顶部导航切换
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 移除所有导航项的活跃状态
+                    navLinks.forEach(nl => nl.classList.remove('active'));
+                    // 为当前点击的导航项添加活跃状态
+                    this.classList.add('active');
+                    
+                    // 获取目标内容区域
+                    const targetSection = this.getAttribute('data-section');
+                    
+                    // 隐藏所有内容区域
+                    document.querySelectorAll('.content-section').forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    
+                    // 显示目标内容区域
+                    document.getElementById(targetSection + '-content').classList.add('active');
+                });
+            });
+            
+            // 确保浮窗在iPhone框架内正确定位
+            const promotionBanner = document.querySelector('.promotion-banner');
+            if (promotionBanner) {
+                const iphoneFrame = document.querySelector('.iphone-frame');
+                const updateBannerPosition = () => {
+                    // 获取iPhone框架的位置信息
+                    const frameRect = iphoneFrame.getBoundingClientRect();
+                    // 设置浮窗的水平位置和宽度
+                    promotionBanner.style.left = `${frameRect.left + 20}px`;
+                    promotionBanner.style.width = `${frameRect.width - 40}px`;
+                    promotionBanner.style.right = 'auto';
+                };
+                
+                // 页面加载时和调整窗口大小时更新位置
+                updateBannerPosition();
+                window.addEventListener('resize', updateBannerPosition);
+            }
+
+            // pt-card点击跳转
+            const ptCards = document.querySelectorAll('.pt-card');
+            ptCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    window.location.href = 'course_detail.html';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

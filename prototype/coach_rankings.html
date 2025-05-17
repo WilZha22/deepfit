@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>教练效果榜-健身APP</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script>
+    // 页面加载完成后设置缩放比例为80%
+    window.onload = function() {
+      document.body.style.zoom = "80%";
+    }
+  </script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft Yahei', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: hsl(216, 20%, 95%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .iphone-frame {
+      position: relative;
+      width: 428px; /* iPhone 14 Pro Max width */
+      height: 926px; /* iPhone 14 Pro Max height */
+      background-color: #1c1c1e; /* Dark grey for the phone body */
+      border-radius: 55px; /* Rounded corners for the phone */
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      padding: 5px; /* Small padding for the bezel */
+      margin-top: 20px; /* Space from top */
+      margin-bottom: 20px; /* Space from bottom */
+    }
+
+    .iphone-screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-color: #000; /* 黑色背景 */
+      border-radius: 48px; /* Inner screen rounded corners */
+      overflow: hidden; /* Clip content to screen */
+    }
+
+    /* Dynamic Island (灵动岛) instead of notch */
+    .dynamic-island {
+      position: absolute;
+      top: 12px; /* Position from top */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px; /* Width of Dynamic Island */
+      height: 37px; /* Height of Dynamic Island */
+      background-color: #000; /* Black color */
+      border-radius: 24px; /* Rounded corners */
+      z-index: 200; /* Above everything else on the screen */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Small indicator light in Dynamic Island */
+    .dynamic-island::after {
+      content: '';
+      position: absolute;
+      right: 28px;
+      width: 8px;
+      height: 8px;
+      background-color: #09c95e; /* Green indicator */
+      border-radius: 50%;
+    }
+
+    .app-container {
+      height: 100%;
+      overflow-y: auto; /* Allow scrolling within the app screen */
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    
+    /* 确保所有应用内的绝对定位元素不会超出容器边界 */
+    .app-container * {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Hide scrollbar for a cleaner look */
+    .app-container::-webkit-scrollbar {
+      display: none;
+    }
+    .app-container {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+
+    .app-header-placeholder { /* Placeholder for status bar area */
+      height: 65px; /* Space for Dynamic Island + status bar */
+      width: 100%;
+    }
+    
+    .main-content {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding-bottom: 70px; /* Space for bottom tab bar */
+      position: relative;
+      background-color: #000;
+    }
+    
+    .main-content::-webkit-scrollbar {
+      display: none;
+    }
+    .main-content {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+
+    /* Status Bar iOS style */
+    .status-bar {
+      position: absolute;
+      top: 14px;
+      left: 0;
+      right: 0;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 150;
+    }
+
+    .status-time {
+      position: absolute;
+      left: 32px;
+    }
+
+    .status-indicators {
+      position: absolute;
+      right: 32px;
+      display: flex;
+      align-items: center;
+    }
+
+    .status-cell, .status-wifi, .status-battery {
+      margin-left: 8px;
+    }
+    
+    /* 顶部返回按钮区域 */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      padding: 10px 20px;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .back-button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-decoration: none;
+    }
+    
+    /* 教练效果榜标题区域 */
+    .ranking-header {
+      position: relative;
+      height: 350px;
+      background: linear-gradient(0deg, #000 0%, rgba(0, 0, 0, 0.5) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 20px;
+      overflow: hidden;
+    }
+    
+    .ranking-header-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.7;
+      z-index: -1;
+    }
+    
+    .ranking-header-content {
+      position: relative;
+      z-index: 5;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .ranking-title {
+      color: #fff;
+      font-size: 40px;
+      font-weight: bold;
+      margin: 0;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .ranking-title::before,
+    .ranking-title::after {
+      content: '';
+      display: block;
+      width: 60px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.7);
+      margin: 0 15px;
+    }
+    
+    .ranking-subtitle {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    
+    /* 排序选项卡 */
+    .ranking-tabs {
+      display: flex;
+      justify-content: space-between;
+      background-color: #000;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-top: 10px;
+    }
+    
+    .ranking-tab {
+      flex: 1;
+      text-align: center;
+      padding: 15px 5px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 16px;
+      text-decoration: none;
+      position: relative;
+    }
+    
+    .ranking-tab.active {
+      color: #fff;
+      font-weight: bold;
+    }
+    
+    .ranking-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;
+      height: 3px;
+      background-color: #fff;
+      border-radius: 1.5px;
+    }
+    
+    /* 位置选择器 */
+    .location-selector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      color: #fff;
+      background-color: #000;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .location-selector i {
+      margin-left: 5px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+    
+    /* 教练列表卡片 */
+    .coach-list {
+      padding: 15px;
+      background-color: #000;
+    }
+    
+    .coach-card {
+      background-color: #111;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 15px;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .coach-rank {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+    }
+    
+    .coach-rank-badge {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    
+    .coach-rank-badge.rank-1 {
+      background-color: #FFD700;
+      color: #000;
+    }
+    
+    .coach-rank-badge.rank-2 {
+      background-color: #C0C0C0;
+      color: #000;
+    }
+    
+    .coach-rank-badge.rank-3 {
+      background-color: #CD7F32;
+      color: #fff;
+    }
+    
+    .coach-rank-badge.rank-4,
+    .coach-rank-badge.rank-5 {
+      background-color: #444;
+      color: #fff;
+    }
+    
+    .coach-rank-badge.rank-1,
+    .coach-rank-badge.rank-2,
+    .coach-rank-badge.rank-3 {
+      -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    }
+    
+    .coach-rank-badge.rank-4,
+    .coach-rank-badge.rank-5 {
+      border-radius: 50%;
+    }
+    
+    .coach-rank-number {
+      font-weight: bold;
+      font-size: 18px;
+    }
+    
+    .coach-avatar {
+      width: 100px;
+      height: 120px;
+      border-radius: 8px;
+      margin-right: 15px;
+      overflow: hidden;
+    }
+    
+    .coach-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .coach-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    
+    .coach-name {
+      font-size: 20px;
+      font-weight: bold;
+      color: #fff;
+      margin: 0;
+      margin-bottom: 5px;
+    }
+    
+    .coach-rating {
+      font-size: 16px;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+    
+    .coach-tags {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    
+    .coach-tag {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.8);
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 3px 8px;
+      border-radius: 10px;
+      margin-right: 5px;
+      margin-bottom: 5px;
+    }
+    
+    .coach-gym {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 5px;
+    }
+    
+    .coach-distance {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+      text-align: right;
+    }
+    
+    .coach-effect {
+      display: flex;
+      align-items: center;
+      margin-top: 5px;
+    }
+    
+    .coach-effect-icon {
+      color: #FFA500;
+      margin-right: 5px;
+    }
+    
+    .coach-effect-rating {
+      color: #FFA500;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    /* 底部导航栏 */
+    .bottom-tab-bar {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 70px;
+      background-color: #000;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+    }
+
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 10px;
+      flex-grow: 1;
+      text-decoration: none;
+    }
+
+    .tab-item .fas {
+      font-size: 22px;
+      margin-bottom: 3px;
+    }
+    
+    .tab-item.active {
+      color: #fff;
+    }
+
+    /* CTA Button in Tab Bar */
+    .tab-item-cta {
+      background: linear-gradient(to right, #8BC34A, #4CAF50);
+      color: #fff !important;
+      padding: 0 20px;
+      height: 48px;
+      border-radius: 24px;
+      font-size: 14px !important;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 0;
+      flex-shrink: 0;
+      margin: 0 5px;
+      animation: pulse-cta 1.8s infinite ease-in-out;
+      text-decoration: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .tab-item-cta:hover {
+      background: linear-gradient(to right, #7CB342, #388E3C);
+    }
+
+    .tab-item-cta .fas {
+      display: none;
+    }
+
+    .tab-item-cta span {
+      margin-bottom: 0 !important;
+      font-size: inherit !important;
+      color: inherit !important;
+    }
+
+    @keyframes pulse-cta {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      }
+      50% {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(139, 195, 74, 0.3);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-frame">
+    <div class="iphone-screen">
+      <!-- Dynamic Island -->
+      <div class="dynamic-island"></div>
+      
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <div class="status-time">10:28</div>
+        <div class="status-indicators">
+          <div class="status-cell">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 0H2C0.9 0 0 0.9 0 2V10C0 11.1 0.9 12 2 12H16C17.1 12 18 11.1 18 10V2C18 0.9 17.1 0 16 0ZM11 10H2V2H11V10ZM16 10H12V2H16V10Z" fill="white"/>
+            </svg>
+          </div>
+          <div class="status-wifi">
+            <svg width="15" height="11" viewBox="0 0 15 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7.5 10.5C8.328 10.5 9 9.828 9 9C9 8.172 8.328 7.5 7.5 7.5C6.672 7.5 6 8.172 6 9C6 9.828 6.672 10.5 7.5 10.5Z" fill="white"/>
+              <path d="M0 3C2.076 1.107 4.674 0 7.5 0C10.326 0 12.924 1.107 15 3L13.326 4.674C11.682 3.15 9.684 2.25 7.5 2.25C5.316 2.25 3.318 3.15 1.674 4.674L0 3Z" fill="white"/>
+              <path d="M3 6C4.167 4.917 5.75 4.25 7.5 4.25C9.25 4.25 10.833 4.917 12 6L10.5 7.5C9.75 6.833 8.667 6.5 7.5 6.5C6.333 6.5 5.25 6.833 4.5 7.5L3 6Z" fill="white"/>
+            </svg>
+          </div>
+          <div class="status-battery">
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="white"/>
+              <rect x="2" y="2" width="18" height="8" rx="1.5" fill="white"/>
+              <path d="M23 4V8C23.8 7.66667 24.3333 7 24.5 6C24.3333 5 23.8 4.33333 23 4Z" fill="white"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <div class="app-container">
+        <!-- App header placeholder replaces old status bar -->
+        <div class="app-header-placeholder"></div>
+        
+        <!-- 顶部返回按钮 -->
+        <div class="top-nav">
+          <a href="#" class="back-button">
+            <i class="fas fa-chevron-left"></i>
+          </a>
+          <div style="position: absolute; right: 20px; display: flex;">
+            <a href="#" style="color: white; margin-right: 15px;">
+              <i class="fas fa-list"></i>
+            </a>
+            <a href="#" style="color: white;">
+              <i class="fas fa-share-alt"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- 主要内容区域 -->
+        <div class="main-content">
+          <!-- 教练效果榜标题区域 -->
+          <div class="ranking-header">
+            <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1050&q=80" class="ranking-header-bg" alt="健身背景">
+            <div class="ranking-header-content">
+              <h1 class="ranking-title">教练效果榜</h1>
+              <p class="ranking-subtitle">5月15日更新·按教练的训练效果评分排序</p>
+            </div>
+            
+            <!-- 排序选项卡 -->
+            <div class="ranking-tabs">
+              <a href="#" class="ranking-tab">全城 <i class="fas fa-heart"></i></a>
+              <a href="#" class="ranking-tab">人气榜</a>
+              <a href="#" class="ranking-tab">好评榜</a>
+              <a href="#" class="ranking-tab active">效果榜</a>
+            </div>
+          </div>
+          
+          <!-- 教练列表 -->
+          <div class="coach-list">
+            <!-- 教练1 -->
+            <div class="coach-card">
+              <div class="coach-rank">
+                <div class="coach-rank-badge rank-1">
+                  <span class="coach-rank-number">1</span>
+                </div>
+              </div>
+              <div class="coach-avatar">
+                <img src="https://images.unsplash.com/photo-1594381898411-846e7d193883?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=334&q=80" alt="杨潇源">
+              </div>
+              <div class="coach-info">
+                <div>
+                  <h3 class="coach-name">杨潇源</h3>
+                  <div class="coach-rating">4.5分</div>
+                  <div class="coach-tags">
+                    <span class="coach-tag">格斗拳击</span>
+                    <span class="coach-tag">增肌</span>
+                    <span class="coach-tag">减脂</span>
+                    <span class="coach-tag">体态调整</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="coach-gym">迈菲健身(罗宾森店)</div>
+                  <div class="coach-distance" style="text-align: right;">火车站 19.1km</div>
+                  <div class="coach-effect">
+                    <span class="coach-effect-icon">🔥</span>
+                    <span class="coach-effect-rating">训练效果4.6分</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 教练2 -->
+            <div class="coach-card">
+              <div class="coach-rank">
+                <div class="coach-rank-badge rank-2">
+                  <span class="coach-rank-number">2</span>
+                </div>
+              </div>
+              <div class="coach-avatar">
+                <img src="https://images.unsplash.com/photo-1609952542840-df54cfddc3fb?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=334&q=80" alt="田田">
+              </div>
+              <div class="coach-info">
+                <div>
+                  <h3 class="coach-name">田田</h3>
+                  <div class="coach-rating">4.5分</div>
+                  <div class="coach-tags">
+                    <span class="coach-tag">塑形</span>
+                    <span class="coach-tag">体态调整</span>
+                    <span class="coach-tag">产后恢复</span>
+                    <span class="coach-tag">康复训练</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="coach-gym">艾莉可可女子健身普拉提...</div>
+                  <div class="coach-distance" style="text-align: right;">云城万科里 5.0km</div>
+                  <div class="coach-effect">
+                    <span class="coach-effect-icon">🔥</span>
+                    <span class="coach-effect-rating">训练效果4.6分</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 教练3 -->
+            <div class="coach-card">
+              <div class="coach-rank">
+                <div class="coach-rank-badge rank-3">
+                  <span class="coach-rank-number">3</span>
+                </div>
+              </div>
+              <div class="coach-avatar">
+                <img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=334&q=80" alt="许溢超">
+              </div>
+              <div class="coach-info">
+                <div>
+                  <h3 class="coach-name">许溢超</h3>
+                  <div class="coach-rating">4.4分</div>
+                  <div class="coach-tags">
+                    <span class="coach-tag">减脂</span>
+                    <span class="coach-tag">塑形</span>
+                    <span class="coach-tag">增肌</span>
+                    <span class="coach-tag">体能训练</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="coach-gym">超鹿运动(天宝店)</div>
+                  <div class="coach-distance" style="text-align: right;">嘉禾路 17.2km</div>
+                  <div class="coach-effect">
+                    <span class="coach-effect-icon">🔥</span>
+                    <span class="coach-effect-rating">训练效果4.6分</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 教练4 -->
+            <div class="coach-card">
+              <div class="coach-rank">
+                <div class="coach-rank-badge rank-4">
+                  <span class="coach-rank-number">4</span>
+                </div>
+              </div>
+              <div class="coach-avatar">
+                <img src="https://images.unsplash.com/photo-1618517048304-b6adb6041a85?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=334&q=80" alt="佳佳教练">
+              </div>
+              <div class="coach-info">
+                <div>
+                  <h3 class="coach-name">佳佳教练</h3>
+                  <div class="coach-rating">4.5分</div>
+                </div>
+                <div>
+                  <div class="coach-gym">超级恒动健身工作室(软三区...</div>
+                  <div class="coach-distance" style="text-align: right;">集美区 2.5km</div>
+                  <div class="coach-effect">
+                    <span class="coach-effect-icon">🔥</span>
+                    <span class="coach-effect-rating">训练效果4.6分</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 教练5 -->
+            <div class="coach-card">
+              <div class="coach-rank">
+                <div class="coach-rank-badge rank-5">
+                  <span class="coach-rank-number">5</span>
+                </div>
+              </div>
+              <div class="coach-avatar">
+                <img src="https://images.unsplash.com/photo-1534367610401-9f5ed68180aa?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=334&q=80" alt="肖磊">
+              </div>
+              <div class="coach-info">
+                <div>
+                  <h3 class="coach-name">肖磊</h3>
+                  <div class="coach-rating">4.6分</div>
+                  <div class="coach-tags">
+                    <span class="coach-tag">减脂</span>
+                    <span class="coach-tag">增肌</span>
+                    <span class="coach-tag">塑形</span>
+                    <span class="coach-tag">腹部训练</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="coach-gym">C-ONE健身俱乐部</div>
+                  <div class="coach-distance" style="text-align: right;">新店 22.0km</div>
+                  <div class="coach-effect">
+                    <span class="coach-effect-icon">🔥</span>
+                    <span class="coach-effect-rating">训练效果4.6分</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <div class="bottom-tab-bar">
+          <a href="index.html" class="tab-item">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+          </a>
+          <a href="venues.html" class="tab-item">
+            <i class="fas fa-dumbbell"></i>
+            <span>场馆</span>
+          </a>
+          <a href="course.html" class="tab-item-cta">
+            <span>立即约课</span>
+          </a>
+          <a href="course.html" class="tab-item active">
+            <i class="fas fa-calendar-alt"></i>
+            <span>课程</span>
+          </a>
+          <a href="my.html" class="tab-item">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 这里可以添加任何需要的交互逻辑
+    });
+  </script>
+</body>
+</html> 

@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deep Fit</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script>
+    // 页面加载完成后设置缩放比例为80%，并初始化语言
+    window.onload = function() {
+      document.body.style.zoom = "80%";
+      
+      // 初始化默认语言（中文）
+      updatePageLanguage('zh');
+    }
+  </script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column; /* Align items vertically */
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f0f2f5; /* Light grey background similar to the app's backdrop */
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft Yahei', sans-serif;
+    }
+
+    .iphone-frame {
+      position: relative;
+      width: 428px; /* iPhone 14 Pro Max width */
+      height: 926px; /* iPhone 14 Pro Max height */
+      background-color: #1c1c1e; /* Dark grey for the phone body */
+      border-radius: 55px; /* Rounded corners for the phone */
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      padding: 5px; /* Small padding for the bezel */
+      margin-top: 20px; /* Space from top */
+      margin-bottom: 20px; /* Space from bottom */
+    }
+
+    .iphone-screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-color: #f0f2f5; /* Screen background, matching the app's light grey */
+      border-radius: 48px; /* Inner screen rounded corners */
+      overflow: hidden; /* Clip content to screen */
+    }
+
+    /* Dynamic Island (灵动岛) instead of notch */
+    .dynamic-island {
+        position: absolute;
+        top: 12px; /* Position from top */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 126px; /* Width of Dynamic Island */
+        height: 37px; /* Height of Dynamic Island */
+        background-color: #000; /* Black color */
+        border-radius: 24px; /* Rounded corners */
+        z-index: 200; /* Above everything else on the screen */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Small indicator light in Dynamic Island */
+    .dynamic-island::after {
+        content: '';
+        position: absolute;
+        right: 28px;
+        width: 8px;
+        height: 8px;
+        background-color: #09c95e; /* Green indicator */
+        border-radius: 50%;
+    }
+
+    .app-container {
+      height: 100%;
+      overflow-y: auto; /* Allow scrolling within the app screen */
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Hide scrollbar for a cleaner look */
+    .app-container::-webkit-scrollbar {
+      display: none;
+    }
+    .app-container {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+
+    .app-header-placeholder { /* Placeholder for status bar area */
+      height: 65px; /* Space for Dynamic Island + status bar */
+      width: 100%;
+    }
+    
+    .main-content {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding-bottom: 70px; /* Space for the bottom tab bar */
+    }
+    
+    .main-content::-webkit-scrollbar {
+      display: none;
+    }
+    .main-content {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #f0f2f5; /* Matches screen background */
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: #000;
+    }
+
+    /* Language Switcher Styles */
+    .language-switcher {
+      position: relative; /* For dropdown positioning */
+      display: flex;
+      align-items: center;
+    }
+
+    .lang-display-container {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 4px;
+    }
+    .lang-display-container:hover {
+        background-color: #e0e0e0;
+    }
+
+    .lang-icon-trigger {
+        font-size: 18px; /* Globe icon size */
+        color: #333;
+        margin-right: 6px;
+    }
+
+    #current-lang-text {
+        font-size: 14px;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .language-dropdown {
+        display: none; /* Hidden by default */
+        position: absolute;
+        top: calc(100% + 5px); /* Position below the trigger */
+        right: 0;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 1000;
+        min-width: 100px; /* Minimum width of the dropdown */
+        overflow: hidden; /* Ensures border-radius clips content */
+    }
+
+    .language-dropdown .lang-option {
+        display: block;
+        padding: 10px 15px;
+        text-decoration: none;
+        color: #333;
+        font-size: 14px;
+        white-space: nowrap;
+        text-align: center; /* 文本居中 */
+    }
+
+    .language-dropdown .lang-option:hover {
+        background-color: #f0f2f5; /* Hover effect */
+    }
+
+    .language-dropdown .lang-option.active {
+        background-color: #e0e0e0; /* Active item background */
+        font-weight: bold;
+        color: #000;
+    }
+    /* End Language Switcher Styles */
+
+    .logout-btn {
+      font-size: 14px;
+      color: #8e8e93; /* A common iOS grey for text buttons */
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .banner-section {
+      margin: 0 15px; /* Side margins for the banner */
+      height: 200px; /* Approximate height from image */
+      border-radius: 12px; /* Rounded corners */
+      overflow: hidden;
+      position: relative;
+      background: url('../images/team1.png') no-repeat center center; /* Updated background image */
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* Center text vertically */
+      align-items: center; /* Center text horizontally */
+      text-align: center;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    .banner-title {
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      text-shadow: 0px 1px 3px rgba(0,0,0,0.5);
+    }
+
+    .banner-subtitle {
+      font-size: 14px;
+      text-shadow: 0px 1px 3px rgba(0,0,0,0.5);
+    }
+
+    .banner-dots {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.4);
+      margin: 0 4px;
+    }
+    .dot.active {
+      background-color: #fff;
+    }
+
+    .training-plan-section {
+      background-color: #fff;
+      margin: 0 15px 20px 15px; /* Side margins, bottom margin */
+      padding: 20px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .plan-text h3 {
+      margin: 0 0 5px 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #000;
+    }
+
+    .plan-text p {
+      margin: 0;
+      font-size: 13px;
+      color: #8e8e93;
+    }
+
+    .plan-icon .fas {
+      font-size: 36px; 
+      color: #FF9500;
+    }
+
+    .info-cards-section {
+      display: flex;
+      justify-content: space-between;
+      margin: 0 15px 20px 15px;
+      gap: 10px; /* Spacing between cards */
+    }
+
+    .info-card {
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-card.large {
+      flex-basis: 40%; /* Adjust as per image */
+      align-items: center; /* Center content for the larger card */
+    }
+
+    .info-card.stacked {
+      flex-basis: 58%; /* Adjust as per image */
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between; /* Distribute space for stacked items */
+      gap: 10px;
+    }
+    
+    .info-card-item {
+        background-color: #fff; /* Assuming cards are white */
+        border-radius: 10px;
+        padding: 10px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-icon .fas {
+      font-size: 28px; 
+      margin-bottom: 10px;
+    }
+
+    .info-card h4 {
+      margin: 0 0 5px 0;
+      font-size: 15px;
+      font-weight: 600;
+      color: #000;
+    }
+
+    .info-card p {
+      margin: 0;
+      font-size: 12px;
+      color: #8e8e93;
+    }
+    
+    .info-card-item-text h4 {
+        font-size: 14px;
+        color: #E74C3C; /* Reddish color for '新人专享' */
+        margin:0 0 2px 0;
+    }
+    
+    .info-card-item-text p {
+        font-size: 12px;
+        color: #333;
+        margin:0;
+    }
+    .info-card-item-text p .price {
+        font-size: 14px;
+        font-weight: bold;
+        color: #E74C3C;
+    }
+
+    .info-card-item-icon .fas {
+        font-size: 28px;
+    }
+
+    .info-card .subscribe-btn {
+      background-color: transparent;
+      color: #000;
+      border: 1px solid #000;
+      padding: 8px 25px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 15px;
+      cursor: pointer;
+      min-width: 80px; /* 确保按钮最小宽度 */
+      white-space: nowrap; /* 防止文本换行 */
+    }
+
+    .coaches-section {
+      margin: 0 15px 20px 15px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #000;
+    }
+
+    .section-more {
+      font-size: 14px;
+      color: #8e8e93;
+      cursor: pointer;
+    }
+
+    .coaches-grid {
+      display: flex;
+      overflow-x: auto;
+      gap: 15px;
+      padding-bottom: 10px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* 隐藏滚动条但保留滚动功能 */
+    .coaches-grid::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .coaches-grid {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+
+    .coach-card {
+      background-color: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      min-width: 160px; /* 调整卡片宽度与图片一致 */
+      width: 160px;
+      flex-shrink: 0;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .coach-image-placeholder {
+      position: relative; /* 为遮罩层提供定位上下文 */
+      width: 100%;
+      height: 190px; /* 调整图片容器高度 */
+      background-color: #EFEFEF;
+      overflow: hidden; /* 确保图片被裁剪 */
+    }
+    
+    .coach-image-placeholder img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* 图片覆盖整个区域，可能会裁剪 */
+    }
+    
+    /* 图片上的遮罩层样式 */
+    .coach-image-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 10px 15px; /* 根据图片调整内边距 */
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0) 100%);
+      color: #fff;
+      text-align: left;
+    }
+
+    .overlay-coach-name {
+      font-size: 22px; /* 教练姓名字体大小 */
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .overlay-coach-slogan {
+      font-size: 14px;
+      color: #fff;
+      line-height: 1.3;
+      max-height: 2.6em; /* 约两行的高度 */
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .coach-info {
+      padding: 12px 15px;
+      text-align: left;
+    }
+
+    .coach-details {
+      font-size: 11px; /* 详细介绍字体大小 */
+      color: #777;
+      line-height: 1.5;
+      /* 多行文本截断显示省略号 */
+      height: calc(1.5em * 3); /* 大约3行的高度 */
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 3; /* 显示的行数 */
+      -webkit-box-orient: vertical;
+      text-overflow: ellipsis;
+    }
+
+    .bottom-tab-bar {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        height: 70px;
+        background-color: #fff;
+        border-top: 1px solid #e0e0e0;
+        position: absolute; /* Stick to bottom of app-container */
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+    }
+
+    .tab-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #8e8e93; /* Default icon/text color */
+        font-size: 10px;
+        flex-grow: 1;
+        text-decoration: none;
+        text-align: center; /* 确保文本居中 */
+    }
+
+    .tab-item span {
+      width: 100%; /* 使文本占据整个宽度 */
+      display: block; /* 块级显示 */
+      overflow: hidden; /* 如果文本太长则隐藏 */
+      text-overflow: ellipsis; /* 显示省略号 */
+      white-space: nowrap; /* 防止文本换行 */
+    }
+
+    .tab-item .fas {
+        font-size: 22px; /* Icon size */
+        margin-bottom: 3px;
+    }
+    .tab-item.active {
+        color: #000; /* Active icon/text color */
+    }
+
+    /* Styles for Partner Venues Section */
+    .venues-section {
+      margin: 0 15px 20px 15px;
+    }
+
+    .venue-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px; /* Space between venue items */
+    }
+
+    .venue-item {
+      display: flex;
+      align-items: center; /* Vertically align items */
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .venue-image {
+      width: 90px; /* Adjusted for better fit */
+      height: 90px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin-right: 15px;
+      flex-shrink: 0; /* Prevent image from shrinking */
+    }
+
+    .venue-details {
+      flex-grow: 1; /* Allow details to take remaining space */
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* Center details vertically if needed */
+    }
+
+    .venue-name {
+      font-size: 17px; /* Slightly larger for prominence */
+      font-weight: 600;
+      color: #000;
+      margin: 0 0 6px 0;
+    }
+
+    .venue-address,
+    .venue-phone {
+      font-size: 13px;
+      color: #555555; /* Darker grey for better readability */
+      margin: 0 0 4px 0;
+      line-height: 1.4;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2; /* 限制显示两行 */
+      -webkit-box-orient: vertical;
+    }
+    .venue-phone .fas {
+        margin-right: 5px;
+        color: #8e8e93;
+    }
+
+    .venue-book-btn {
+      background-color: #FF9500; /* Consistent button color */
+      color: #fff;
+      border: none;
+      padding: 10px 18px; /* Slightly larger padding */
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap; /* Prevent button text from wrapping */
+      margin-left: 10px; /* Space between details and button */
+      min-width: 60px; /* 确保最小宽度 */
+      text-align: center; /* 文本居中 */
+    }
+    /* End of Styles for Partner Venues Section */
+
+    .top-nav {
+      margin-top: 2px;
+      line-height: 1.3; /* Added for better multiline spacing */
+    }
+
+    .bottom-tab-bar {
+      font-size: 10px;
+      flex-grow: 1;
+      text-decoration: none;
+    }
+
+    .tab-item .fas {
+      font-size: 22px; /* Icon size */
+      margin-bottom: 3px;
+    }
+    .tab-item.active {
+      color: #000; /* Active icon/text color */
+    }
+
+            /* CTA Button in Tab Bar */
+        .tab-item-cta {
+            background: linear-gradient(45deg, #ff4e50, #f9d423); /* 火热的红橙黄渐变 */
+            color: #fff !important; /* White text */
+            padding: 0 20px; /* Horizontal padding */
+            height: 48px; /* Taller than other items */
+            border-radius: 24px; /* Pill shape */
+            font-size: 15px !important; /* 更大字体 */
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 0; /* Don't grow, fixed size based on content/padding */
+            flex-shrink: 0; /* Don't shrink */
+            margin: 0 5px; /* Spacing from neighbors */
+            animation: pulse-cta 1.5s infinite ease-in-out;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(255, 78, 80, 0.4); /* 红色阴影 */
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            min-width: 100px; /* 设置最小宽度 */
+        }
+
+        /* 添加闪光效果 */
+        .tab-item-cta::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+            animation: shine 3s infinite linear;
+            z-index: -1;
+        }
+
+        /* 添加火焰效果 - 替换原来的表情符号 */
+        .tab-item-cta::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 28px;
+            background: linear-gradient(45deg, rgba(255, 69, 0, 0.6), rgba(255, 215, 0, 0.5));
+            z-index: -2;
+            filter: blur(8px);
+            opacity: 0.7;
+            animation: fire-glow 2s infinite alternate;
+        }
+
+        @keyframes fire-glow {
+            0% {
+                opacity: 0.5;
+                filter: blur(8px) brightness(1);
+            }
+            100% {
+                opacity: 0.8;
+                filter: blur(12px) brightness(1.2);
+            }
+        }
+
+        @keyframes shine {
+            0% {
+                left: -100%;
+                top: -100%;
+            }
+            100% {
+                left: 100%;
+                top: 100%;
+            }
+        }
+
+        @keyframes flicker {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .tab-item-cta:hover {
+            background: linear-gradient(45deg, #ff3019, #ff8e00); /* 更强烈的渐变色 */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 48, 25, 0.5);
+        }
+
+        .tab-item-cta .fas {
+            display: none; /* Ensure no icon is shown even if structure implies */
+        }
+
+        .tab-item-cta span {
+            margin-bottom: 0 !important; /* Override any margin from .tab-item span */
+            font-size: inherit !important;
+            color: inherit !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2); /* 文字阴影效果 */
+        }
+
+        @keyframes pulse-cta {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 4px 15px rgba(255, 78, 80, 0.4);
+            }
+            50% {
+                transform: scale(1.08);
+                box-shadow: 0 6px 20px rgba(255, 48, 25, 0.6);
+            }
+        }
+
+    /* Status Bar iOS style */
+    .status-bar {
+        position: absolute;
+        top: 14px;
+        left: 0;
+        right: 0;
+        padding: 0 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #000;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 150;
+    }
+
+    .status-time {
+        position: absolute;
+        left: 32px;
+    }
+
+    .status-indicators {
+        position: absolute;
+        right: 32px;
+        display: flex;
+        align-items: center;
+    }
+
+    .status-cell, .status-wifi, .status-battery {
+        margin-left: 8px;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="iphone-frame">
+    <div class="iphone-screen">
+      <!-- Dynamic Island replaces the notch -->
+      <div class="dynamic-island"></div>
+      
+      <!-- Status Bar -->
+      <div class="status-bar">
+          <div class="status-time">10:12</div>
+          <div class="status-indicators">
+              <div class="status-cell">
+                  <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M16 0H2C0.9 0 0 0.9 0 2V10C0 11.1 0.9 12 2 12H16C17.1 12 18 11.1 18 10V2C18 0.9 17.1 0 16 0ZM11 10H2V2H11V10ZM16 10H12V2H16V10Z" fill="black"/>
+                  </svg>
+              </div>
+              <div class="status-wifi">
+                  <svg width="15" height="11" viewBox="0 0 15 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M7.5 10.5C8.328 10.5 9 9.828 9 9C9 8.172 8.328 7.5 7.5 7.5C6.672 7.5 6 8.172 6 9C6 9.828 6.672 10.5 7.5 10.5Z" fill="black"/>
+                      <path d="M0 3C2.076 1.107 4.674 0 7.5 0C10.326 0 12.924 1.107 15 3L13.326 4.674C11.682 3.15 9.684 2.25 7.5 2.25C5.316 2.25 3.318 3.15 1.674 4.674L0 3Z" fill="black"/>
+                      <path d="M3 6C4.167 4.917 5.75 4.25 7.5 4.25C9.25 4.25 10.833 4.917 12 6L10.5 7.5C9.75 6.833 8.667 6.5 7.5 6.5C6.333 6.5 5.25 6.833 4.5 7.5L3 6Z" fill="black"/>
+                  </svg>
+              </div>
+              <div class="status-battery">
+                  <svg width="25" height="12" viewBox="0 0 25 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="black"/>
+                      <rect x="2" y="2" width="18" height="8" rx="1.5" fill="black"/>
+                      <path d="M23 4V8C23.8 7.66667 24.3333 7 24.5 6C24.3333 5 23.8 4.33333 23 4Z" fill="black"/>
+                  </svg>
+              </div>
+          </div>
+      </div>
+      
+      <div class="app-container">
+        <!-- App header placeholder replaces old status bar -->
+        <div class="app-header-placeholder"></div>
+
+        <!-- App Content Starts Here -->
+        <div class="main-content">
+            <!-- Top Navigation -->
+            <div class="top-nav">
+                <div class="address-selector">
+                    <a href="address.html" style="display: flex; align-items: center; text-decoration: none; color: #000;">
+                        <i class="fas fa-map-marker-alt" style="margin-right: 5px;"></i>
+                        <span>厦门</span>
+                    </a>
+                </div>
+                <div class="language-switcher">
+                    <div class="lang-display-container" onclick="toggleLangDropdown()">
+                        <i class="fas fa-globe lang-icon-trigger"></i>
+                        <span id="current-lang-text">中</span>
+                    </div>
+                    <div class="language-dropdown" id="langDropdown">
+                        <a href="#" class="lang-option active" onclick="switchLang(this, '中', 'zh'); return false;">中文</a>
+                        <a href="#" class="lang-option" onclick="switchLang(this, 'EN', 'en'); return false;">English</a>
+                        <a href="#" class="lang-option" onclick="switchLang(this, 'KO', 'ko'); return false;">한국어</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Banner Section -->
+            <div class="banner-section">
+                <div class="banner-title">升级新篇 为动而来</div>
+                <div class="banner-subtitle">全新四大课程体系</div>
+                <div class="banner-dots">
+                    <span class="dot active"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+
+            <!-- Training Plan Section -->
+            <div class="training-plan-section">
+                <div class="plan-text">
+                    <h3>获取你的训练计划</h3>
+                    <p>了解你的运动需求, 定制你的专属计划</p>
+                </div>
+                <div class="plan-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+            </div>
+
+            <!-- Info Cards Section -->
+            <div class="info-cards-section">
+                <div class="info-card large">
+                    <div class="card-icon">
+                        <img src="../images/deepfit.png" alt="DeepFit Icon" style="width: auto; height: 50px;">
+                    </div>
+                    <h4>官方公众号</h4>
+                    <p>一起探索运动生活新方式</p>
+                    <button class="subscribe-btn">立即关注</button>
+                </div>
+                <div class="info-card stacked">
+                    <div class="info-card-item">
+                        <div class="info-card-item-text">
+                            <h4>新人专享</h4>
+                            <p>私教课低至 <span class="price">7</span> 元/节</p>
+                        </div>
+                        <div class="info-card-item-icon">
+                            <i class="fas fa-gift" style="color: #FF2D55;"></i>
+                        </div>
+                    </div>
+                    <div class="info-card-item">
+                        <div class="info-card-item-text">
+                             <h4>联系助教</h4>
+                             <p>领取定制礼包</p>
+                        </div>
+                        <div class="info-card-item-icon">
+                            <img src="../images/coachgirl.png" alt="助教头像" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Partner Venues Section -->
+            <div class="venues-section">
+                <div class="section-header">
+                    <h3 class="section-title">附近的场馆</h3>
+                    <span class="section-more">更多 ></span>
+                </div>
+                <div class="venue-list">
+                    <div class="venue-item">
+                        <img src="../images/place1.png" alt="Velocity Fitness Hub" class="venue-image">
+                        <div class="venue-details">
+                            <h4 class="venue-name">光速健康中心</h4>
+                            <p class="venue-address">未来城路123号, 科技园区A座 (123 Future Ave, Tech Park, Building A)</p>
+                            <p class="venue-phone"><i class="fas fa-phone-alt"></i> (010) 1234-5678</p>
+                        </div>
+                        <button class="venue-book-btn">预约</button>
+                    </div>
+                    <div class="venue-item">
+                        <img src="../images/place2.png" alt="Iron Grip Gym" class="venue-image">
+                        <div class="venue-details">
+                            <h4 class="venue-name">铁拳健身房</h4>
+                            <p class="venue-address">中央大街45B号, 商业广场2层 (45B Central St, Commercial Plaza, 2F)</p>
+                            <p class="venue-phone"><i class="fas fa-phone-alt"></i> (021) 9876-5432</p>
+                        </div>
+                        <button class="venue-book-btn">预约</button>
+                    </div>
+                    <div class="venue-item">
+                        <img src="../images/place3.png" alt="Zen Flow Yoga" class="venue-image">
+                        <div class="venue-details">
+                            <h4 class="venue-name">禅静瑜伽馆</h4>
+                            <p class="venue-address">宁静巷1号, 文化中心旁 (1 Serenity Lane, Next to Cultural Center)</p>
+                            <p class="venue-phone"><i class="fas fa-phone-alt"></i> (0755) 2468-1357</p>
+                        </div>
+                        <button class="venue-book-btn">预约</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coaches Section -->
+            <div class="coaches-section">
+                <div class="section-header">
+                    <div class="section-title">明星教练</div>
+                    <div class="section-more">更多 ></div>
+                </div>
+                <div class="coaches-grid">
+                    <!-- Coach Card 1 -->
+                    <div class="coach-card">
+                        <div class="coach-image-placeholder">
+                            <img src="../images/coach1.png" alt="Chris">
+                            <div class="coach-image-overlay">
+                                <div class="overlay-coach-name">Chris</div>
+                                <div class="overlay-coach-slogan">身体与精神的平衡者</div>
+                            </div>
+                        </div>
+                        <div class="coach-info">
+                            <div class="coach-details">
+                                中国国家专业私人健身教练 | GSSC体能训练体系认证 | MFT格斗健身教练
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Coach Card 2 -->
+                    <div class="coach-card">
+                        <div class="coach-image-placeholder">
+                            <img src="../images/coach2.png" alt="Leah">
+                            <div class="coach-image-overlay">
+                                <div class="overlay-coach-name">Rome</div>
+                                <div class="overlay-coach-slogan">力量训练专家</div>
+                            </div>
+                        </div>
+                        <div class="coach-info">
+                            <div class="coach-details">
+                                全美瑜伽联盟RYT500资格认证、全美瑜伽联盟YACEP | RTYT200国际瑜伽理疗师认证...
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Coach Card 3 -->
+                    <div class="coach-card">
+                        <div class="coach-image-placeholder">
+                            <img src="../images/coachgirl.png" alt="Coach 3">
+                            <div class="coach-image-overlay">
+                                <div class="overlay-coach-name">Lean</div>
+                                <div class="overlay-coach-slogan">温柔细腻的舞蹈女神</div>
+                            </div>
+                        </div>
+                        <div class="coach-info">
+                            <div class="coach-details">
+                                美国体适能协会认证教练 | TRX悬挂训练系统认证 | 功能性训练专家
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Coach Card 4 -->
+                    <div class="coach-card">
+                        <div class="coach-image-placeholder">
+                            <img src="../images/coach1.png" alt="Coach 4">
+                            <div class="coach-image-overlay">
+                                <div class="overlay-coach-name">Emma</div>
+                                <div class="overlay-coach-slogan">普拉提大师</div>
+                            </div>
+                        </div>
+                        <div class="coach-info">
+                            <div class="coach-details">
+                                国际普拉提联盟认证教练 | 康复训练专家 | 10年教学经验
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- App Content Ends Here -->
+
+        <!-- Bottom Tab Bar -->
+        <div class="bottom-tab-bar">
+            <a href="index.html" class="tab-item active">
+                <i class="fas fa-home"></i>
+                <span>首页</span>
+            </a>
+            <a href="venues.html" class="tab-item">
+                <i class="fas fa-dumbbell"></i>
+                <span>场馆</span>
+            </a>
+            <a href="events.html" class="tab-item-cta">
+                <span>热门赛事</span>
+            </a>
+            <a href="course.html" class="tab-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>课程</span>
+            </a>
+            <a href="my.html" class="tab-item">
+                <i class="fas fa-user"></i>
+                <span>我的</span>
+            </a>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+  function toggleLangDropdown() {
+    const dropdown = document.getElementById('langDropdown');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+  }
+
+  // 多语言翻译对象
+  const translations = {
+    zh: {
+      // 顶部导航
+      address: "厦门",
+      // Banner区域
+      bannerTitle: "升级新篇 为动而来",
+      bannerSubtitle: "全新四大课程体系",
+      // 训练计划区域
+      trainingPlanTitle: "获取你的训练计划",
+      trainingPlanDesc: "了解你的运动需求, 定制你的专属计划",
+      // 信息卡片区域
+      officialAccount: "官方公众号",
+      exploreText: "一起探索运动生活新方式",
+      subscribeBtn: "立即关注",
+      newUserExclusive: "新人专享",
+      privateLesson: "私教课低至 <span class=\"price\">7</span> 元/节",
+      contactAssistant: "联系助教",
+      customPackage: "领取定制礼包",
+      // 场馆区域
+      nearbyVenues: "附近的场馆",
+      moreText: "更多 >",
+      velocityFitness: "光速健康中心",
+      velocityAddress: "未来城路123号, 科技园区A座 (123 Future Ave, Tech Park, Building A)",
+      ironGripGym: "铁拳健身房",
+      ironGripAddress: "中央大街45B号, 商业广场2层 (45B Central St, Commercial Plaza, 2F)",
+      zenFlowYoga: "禅静瑜伽馆",
+      zenFlowAddress: "宁静巷1号, 文化中心旁 (1 Serenity Lane, Next to Cultural Center)",
+      bookBtn: "预约",
+      // 教练区域
+      starCoaches: "明星教练",
+      balancer: "身体与精神的平衡者",
+      strengthExpert: "力量训练专家",
+      danceGoddess: "温柔细腻的舞蹈女神",
+      pilatesMaster: "普拉提大师",
+      // 底部标签
+      home: "首页",
+      venues: "场馆",
+      hotEvents: "热门赛事",
+      courses: "课程",
+      mine: "我的"
+    },
+    en: {
+      // Top navigation
+      address: "Xiamen",
+      // Banner area
+      bannerTitle: "New Level, New Move",
+      bannerSubtitle: "Four Course Systems",
+      // Training plan area
+      trainingPlanTitle: "Get Your Plan",
+      trainingPlanDesc: "Custom plans for your needs",
+      // Info cards area
+      officialAccount: "Official",
+      exploreText: "Explore fitness lifestyle",
+      subscribeBtn: "Follow",
+      newUserExclusive: "New User",
+      privateLesson: "PT from <span class=\"price\">7</span> ¥",
+      contactAssistant: "Support",
+      customPackage: "Get gift pack",
+      // Venue area
+      nearbyVenues: "Nearby",
+      moreText: "More >",
+      velocityFitness: "Velocity Fitness",
+      velocityAddress: "123 Future Ave, Tech Park, Building A",
+      ironGripGym: "Iron Grip Gym",
+      ironGripAddress: "45B Central St, Commercial Plaza, 2F",
+      zenFlowYoga: "Zen Flow Yoga",
+      zenFlowAddress: "1 Serenity Lane, Next to Cultural Center",
+      bookBtn: "Book",
+      // Coach area
+      starCoaches: "Coaches",
+      balancer: "Mind-Body Balancer",
+      strengthExpert: "Strength Expert",
+      danceGoddess: "Dance Master",
+      pilatesMaster: "Pilates Master",
+      // Bottom tabs
+      home: "Home",
+      venues: "Gyms",
+      hotEvents: "Events",
+      courses: "Class",
+      mine: "Me"
+    },
+    ko: {
+      // 상단 네비게이션
+      address: "샤먼",
+      // 배너 영역
+      bannerTitle: "새로운 단계",
+      bannerSubtitle: "4가지 과정 체계",
+      // 트레이닝 계획 영역
+      trainingPlanTitle: "계획 받기",
+      trainingPlanDesc: "맞춤형 피트니스 계획",
+      // 정보 카드 영역
+      officialAccount: "공식계정",
+      exploreText: "피트니스 라이프스타일",
+      subscribeBtn: "팔로우",
+      newUserExclusive: "신규회원",
+      privateLesson: "PT <span class=\"price\">7</span>¥부터",
+      contactAssistant: "문의",
+      customPackage: "선물 받기",
+      // 장소 영역
+      nearbyVenues: "주변 시설",
+      moreText: "더보기 >",
+      velocityFitness: "벨로시티 피트니스",
+      velocityAddress: "123 퓨처 에비뉴, 테크 파크",
+      ironGripGym: "아이언 그립 짐",
+      ironGripAddress: "45B 센트럴 스트리트, 2층",
+      zenFlowYoga: "젠 플로우 요가",
+      zenFlowAddress: "1 세레니티 레인, 문화센터 옆",
+      bookBtn: "예약",
+      // 코치 영역
+      starCoaches: "코치",
+      balancer: "마인드-바디 전문가",
+      strengthExpert: "근력 전문가",
+      danceGoddess: "댄스 마스터",
+      pilatesMaster: "필라테스 마스터",
+      // 하단 탭
+      home: "홈",
+      venues: "체육관",
+      hotEvents: "이벤트",
+      courses: "수업",
+      mine: "내정보"
+    }
+  };
+
+  // 更新页面中所有需要翻译的元素内容
+  function updatePageLanguage(lang) {
+    // 地址选择器
+    document.querySelector('.address-selector span').textContent = translations[lang].address;
+    
+    // Banner区域
+    document.querySelector('.banner-title').textContent = translations[lang].bannerTitle;
+    document.querySelector('.banner-subtitle').textContent = translations[lang].bannerSubtitle;
+    
+    // 训练计划区域
+    document.querySelector('.training-plan-section h3').textContent = translations[lang].trainingPlanTitle;
+    document.querySelector('.training-plan-section p').textContent = translations[lang].trainingPlanDesc;
+    
+    // 信息卡片区域
+    document.querySelector('.info-card.large h4').textContent = translations[lang].officialAccount;
+    document.querySelector('.info-card.large p').textContent = translations[lang].exploreText;
+    document.querySelector('.subscribe-btn').textContent = translations[lang].subscribeBtn;
+    
+    document.querySelector('.info-card-item:nth-child(1) .info-card-item-text h4').textContent = translations[lang].newUserExclusive;
+    document.querySelector('.info-card-item:nth-child(1) .info-card-item-text p').innerHTML = translations[lang].privateLesson;
+    document.querySelector('.info-card-item:nth-child(2) .info-card-item-text h4').textContent = translations[lang].contactAssistant;
+    document.querySelector('.info-card-item:nth-child(2) .info-card-item-text p').textContent = translations[lang].customPackage;
+    
+    // 场馆区域
+    document.querySelector('.venues-section .section-title').textContent = translations[lang].nearbyVenues;
+    document.querySelector('.venues-section .section-more').textContent = translations[lang].moreText;
+    
+    document.querySelector('.venue-item:nth-child(1) .venue-name').textContent = translations[lang].velocityFitness;
+    document.querySelector('.venue-item:nth-child(1) .venue-address').textContent = translations[lang].velocityAddress;
+    document.querySelector('.venue-item:nth-child(2) .venue-name').textContent = translations[lang].ironGripGym;
+    document.querySelector('.venue-item:nth-child(2) .venue-address').textContent = translations[lang].ironGripAddress;
+    document.querySelector('.venue-item:nth-child(3) .venue-name').textContent = translations[lang].zenFlowYoga;
+    document.querySelector('.venue-item:nth-child(3) .venue-address').textContent = translations[lang].zenFlowAddress;
+    
+    // 所有预约按钮
+    document.querySelectorAll('.venue-book-btn').forEach(btn => {
+      btn.textContent = translations[lang].bookBtn;
+    });
+    
+    // 教练区域
+    document.querySelector('.coaches-section .section-title').textContent = translations[lang].starCoaches;
+    document.querySelector('.coaches-section .section-more').textContent = translations[lang].moreText;
+    
+    document.querySelector('.coach-card:nth-child(1) .overlay-coach-slogan').textContent = translations[lang].balancer;
+    document.querySelector('.coach-card:nth-child(2) .overlay-coach-slogan').textContent = translations[lang].strengthExpert;
+    document.querySelector('.coach-card:nth-child(3) .overlay-coach-slogan').textContent = translations[lang].danceGoddess;
+    document.querySelector('.coach-card:nth-child(4) .overlay-coach-slogan').textContent = translations[lang].pilatesMaster;
+    
+    // 底部标签栏
+    document.querySelector('.tab-item.active span').textContent = translations[lang].home;
+    document.querySelector('.tab-item:nth-child(2) span').textContent = translations[lang].venues;
+    document.querySelector('.tab-item-cta span').textContent = translations[lang].hotEvents;
+    document.querySelector('.tab-item:nth-child(4) span').textContent = translations[lang].courses;
+    document.querySelector('.tab-item:nth-child(5) span').textContent = translations[lang].mine;
+  }
+
+  function switchLang(selectedElement, langText, langCode) {
+    // 更新当前语言显示文本
+    document.getElementById('current-lang-text').textContent = langText;
+
+    // 移除所有语言选项的active类
+    const langOptions = document.querySelectorAll('.language-dropdown .lang-option');
+    langOptions.forEach(opt => opt.classList.remove('active'));
+    
+    // 为被点击的选项添加active类
+    selectedElement.classList.add('active');
+
+    // 更新页面语言
+    updatePageLanguage(langCode);
+    
+    console.log("Language switched to: " + langCode + " (" + langText + ")");
+    // 隐藏下拉菜单
+    document.getElementById('langDropdown').style.display = 'none';
+  }
+
+  // 点击下拉菜单外部区域关闭下拉菜单
+  window.onclick = function(event) {
+    // 检查点击是否在语言切换器组件外部
+    if (!event.target.closest('.language-switcher')) {
+      const dropdown = document.getElementById('langDropdown');
+      if (dropdown.style.display === 'block') {
+        dropdown.style.display = 'none';
+      }
+    }
+  }
+</script>
+</body>
+</html>

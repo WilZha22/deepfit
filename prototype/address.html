@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地址选择</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script>
+        // 页面加载完成后设置缩放比例为80%
+        window.onload = function() {
+          document.body.style.zoom = "80%";
+        }
+      </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft Yahei', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .iphone-frame {
+            position: relative;
+            width: 428px; /* iPhone 14 Pro Max width */
+            height: 926px; /* iPhone 14 Pro Max height */
+            background-color: #1c1c1e; /* Dark grey for the phone body */
+            border-radius: 55px; /* Rounded corners for the phone */
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            padding: 5px; /* Small padding for the bezel */
+            margin-top: 20px; /* Space from top */
+            margin-bottom: 20px; /* Space from bottom */
+        }
+
+        .iphone-screen {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: #f0f2f5; /* Screen background, matching the app's light grey */
+            border-radius: 48px; /* Inner screen rounded corners */
+            overflow: hidden; /* Clip content to screen */
+        }
+
+        /* Dynamic Island (灵动岛) instead of notch */
+        .dynamic-island {
+            position: absolute;
+            top: 12px; /* Position from top */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 126px; /* Width of Dynamic Island */
+            height: 37px; /* Height of Dynamic Island */
+            background-color: #000; /* Black color */
+            border-radius: 24px; /* Rounded corners */
+            z-index: 200; /* Above everything else on the screen */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Small indicator light in Dynamic Island */
+        .dynamic-island::after {
+            content: '';
+            position: absolute;
+            right: 28px;
+            width: 8px;
+            height: 8px;
+            background-color: #09c95e; /* Green indicator */
+            border-radius: 50%;
+        }
+
+        .app-container {
+            height: 100%;
+            overflow-y: auto; /* Allow scrolling within the app screen */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Hide scrollbar for a cleaner look */
+        .app-container::-webkit-scrollbar {
+            display: none;
+        }
+        .app-container {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        .app-header-placeholder { /* Placeholder for status bar area */
+            height: 65px; /* Space for Dynamic Island + status bar */
+            width: 100%;
+        }
+        
+        .main-content {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        
+        .main-content::-webkit-scrollbar {
+            display: none;
+        }
+        .main-content {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        /* Status Bar iOS style */
+        .status-bar {
+            position: absolute;
+            top: 14px;
+            left: 0;
+            right: 0;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #000;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 150;
+        }
+
+        .status-time {
+            position: absolute;
+            left: 32px;
+        }
+
+        .status-indicators {
+            position: absolute;
+            right: 32px;
+            display: flex;
+            align-items: center;
+        }
+
+        .status-cell, .status-wifi, .status-battery {
+            margin-left: 8px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .back-button {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #000;
+            font-size: 16px;
+        }
+        .back-button i {
+            margin-right: 5px;
+        }
+        .content {
+            padding: 20px;
+        }
+        .region-list {
+            list-style: none;
+            padding: 0;
+        }
+        .region-list li {
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+            background-color: #fff;
+            margin-bottom: 2px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .region-list li:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="iphone-frame">
+        <div class="iphone-screen">
+            <!-- Dynamic Island replaces the notch -->
+            <div class="dynamic-island"></div>
+            
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-time">10:12</div>
+                <div class="status-indicators">
+                    <div class="status-cell">
+                        <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 0H2C0.9 0 0 0.9 0 2V10C0 11.1 0.9 12 2 12H16C17.1 12 18 11.1 18 10V2C18 0.9 17.1 0 16 0ZM11 10H2V2H11V10ZM16 10H12V2H16V10Z" fill="black"/>
+                        </svg>
+                    </div>
+                    <div class="status-wifi">
+                        <svg width="15" height="11" viewBox="0 0 15 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7.5 10.5C8.328 10.5 9 9.828 9 9C9 8.172 8.328 7.5 7.5 7.5C6.672 7.5 6 8.172 6 9C6 9.828 6.672 10.5 7.5 10.5Z" fill="black"/>
+                            <path d="M0 3C2.076 1.107 4.674 0 7.5 0C10.326 0 12.924 1.107 15 3L13.326 4.674C11.682 3.15 9.684 2.25 7.5 2.25C5.316 2.25 3.318 3.15 1.674 4.674L0 3Z" fill="black"/>
+                            <path d="M3 6C4.167 4.917 5.75 4.25 7.5 4.25C9.25 4.25 10.833 4.917 12 6L10.5 7.5C9.75 6.833 8.667 6.5 7.5 6.5C6.333 6.5 5.25 6.833 4.5 7.5L3 6Z" fill="black"/>
+                        </svg>
+                    </div>
+                    <div class="status-battery">
+                        <svg width="25" height="12" viewBox="0 0 25 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="black"/>
+                            <rect x="2" y="2" width="18" height="8" rx="1.5" fill="black"/>
+                            <path d="M23 4V8C23.8 7.66667 24.3333 7 24.5 6C24.3333 5 23.8 4.33333 23 4Z" fill="black"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="app-container">
+                <div class="app-header-placeholder"></div>
+
+                <!-- App Content Starts Here -->
+                <div class="main-content">
+                    <div class="header">
+                        <a href="index.html" class="back-button">
+                            <i class="fas fa-arrow-left"></i> 
+                        </a>
+                    </div>
+                    <div class="content">
+                        <h2>选择地址</h2>
+                        <ul class="region-list">
+                            <li>北京市</li>
+                            <li>上海市</li>
+                            <li>天津市</li>
+                            <li>重庆市</li>
+                            <li>广东省</li>
+                            <li>江苏省</li>
+                            <li>浙江省</li>
+                            <li>山东省</li>
+                            <li>河南省</li>
+                            <li>四川省</li>
+                            <li>河北省</li>
+                            <li>湖南省</li>
+                            <li>湖北省</li>
+                            <li>安徽省</li>
+                            <li>福建省</li>
+                            <li>厦门市</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

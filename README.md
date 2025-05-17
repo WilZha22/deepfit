@@ -1,6 +1,6 @@
 # Keepfit健身APP
 
-基于uni-app开发的跨平台健身APP，支持Android、iOS和微信小程序。
+基于HTML/CSS/JavaScript开发的健身APP原型，可直接部署到Vercel。
 
 ## 项目概述
 
@@ -8,65 +8,50 @@
 
 - 首页：展示轮播广告、赛事活动、合作场馆、明星教练和近期课程
 - 赛事活动：展示健身相关赛事和活动信息
+- 会员购买：提供会员订阅服务
 - 课程预约：提供课程预约功能
 - 个人中心：用户个人信息和相关设置
 
 ## 技术栈
 
-- 基础框架：uni-app
-- 前端：Vue.js
-- 样式：CSS3
+- 前端：HTML5, CSS3, JavaScript
+- 响应式设计：移动端优先
+- 多语言支持：中文、英文、韩文
 
 ## 目录结构
 
 ```
-├── pages/                 # 页面文件夹
-│   ├── index/             # 首页
-│   ├── events/            # 赛事活动页
-│   ├── courses/           # 课程预约页
-│   └── my/                # 个人中心页
-├── static/                # 静态资源
-│   └── images/            # 图片资源
-├── App.vue                # 应用入口组件
-├── main.js                # 应用入口文件
-├── pages.json             # 页面配置文件
-├── package.json           # 项目依赖配置
-└── index.html             # HTML预览文件
-```
-
-## 运行方式
-
-1. 安装依赖
-
-```bash
-npm install
-```
-
-2. 运行项目（H5模式）
-
-```bash
-npm run dev:h5
-```
-
-3. 运行项目（微信小程序模式）
-
-```bash
-npm run dev:mp-weixin
-```
-
-4. 运行项目（App模式）
-
-```bash
-npm run dev:app-plus
+├── prototype/             # HTML原型页面
+│   ├── index.html         # 首页
+│   ├── events.html        # 赛事活动页
+│   ├── event_detail.html  # 赛事详情页
+│   ├── member.html        # 会员购买页
+│   ├── course.html        # 课程页
+│   ├── course_detail.html # 课程详情页
+│   └── my.html            # 个人中心页
+├── images/                # 图片资源
+├── vercel.json            # Vercel部署配置
+└── README.md              # 项目说明
 ```
 
 ## 项目预览
 
-可以通过访问 `index.html` 来查看项目在iPhone 16 Pro Max上的模拟效果。
+所有HTML文件都包含了iPhone模拟框架，可以直接在浏览器中查看移动端效果。
 
-## 适配平台
+## Vercel部署说明
 
-- Android
-- iOS
-- 微信小程序# deepfit
-# deepfit
+本项目已配置为可直接部署到Vercel的静态网站：
+
+1. Fork或Clone本仓库到自己的GitHub账号
+2. 登录Vercel并导入该仓库
+3. Vercel会自动识别配置并部署
+
+## 多语言支持
+
+首页支持中文、英文和韩文三种语言切换，点击顶部语言按钮可切换。
+
+## 特色功能
+
+- 会员购买页面（member.html）带倒计时优惠功能
+- 赛事详情页（event_detail.html）提供详细的活动信息和报名入口
+- 响应式设计，适配各类移动设备

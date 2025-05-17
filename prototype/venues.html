@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>合作场馆</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script>
+    // 页面加载完成后设置缩放比例为80%
+    window.onload = function() {
+      document.body.style.zoom = "80%";
+    }
+  </script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f0f2f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft Yahei', sans-serif;
+    }
+
+    .iphone-frame {
+      position: relative;
+      width: 428px;
+      height: 926px;
+      background-color: #1c1c1e;
+      border-radius: 55px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      padding: 5px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .iphone-screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-color: #f0f2f5;
+      border-radius: 48px;
+      overflow: hidden;
+    }
+
+    /* Dynamic Island (灵动岛) */
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 37px;
+      background-color: #000;
+      border-radius: 24px;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Small indicator light in Dynamic Island */
+    .dynamic-island::after {
+      content: '';
+      position: absolute;
+      right: 28px;
+      width: 8px;
+      height: 8px;
+      background-color: #09c95e;
+      border-radius: 50%;
+    }
+
+    .app-container {
+      height: 100%;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Hide scrollbar for a cleaner look */
+    .app-container::-webkit-scrollbar {
+      display: none;
+    }
+    .app-container {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .app-header-placeholder {
+      height: 65px;
+      width: 100%;
+    }
+    
+    .main-content {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding-bottom: 70px;
+    }
+    
+    .main-content::-webkit-scrollbar {
+      display: none;
+    }
+    .main-content {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Status Bar iOS style */
+    .status-bar {
+      position: absolute;
+      top: 14px;
+      left: 0;
+      right: 0;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #000;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 150;
+    }
+
+    .status-time {
+      position: absolute;
+      left: 32px;
+    }
+
+    .status-indicators {
+      position: absolute;
+      right: 32px;
+      display: flex;
+      align-items: center;
+    }
+
+    .status-cell, .status-wifi, .status-battery {
+      margin-left: 8px;
+    }
+
+    /* 页面标题区域 */
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 25px 20px 15px 20px; /* 修改顶部内边距以调整标题位置 */
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 600;
+      flex-grow: 1;
+      text-align: center;
+    }
+
+    /* 分类标签栏 */
+    .category-tabs {
+      display: flex;
+      overflow-x: auto;
+      background-color: #fff;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .category-tabs::-webkit-scrollbar {
+      display: none;
+    }
+    
+    .category-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 70px;
+      padding: 5px 10px;
+      color: #666;
+      text-decoration: none;
+      font-size: 12px;
+    }
+    
+    .category-tab.active {
+      color: #ff6b00;
+      font-weight: 500;
+    }
+    
+    .category-tab i {
+      font-size: 20px;
+      margin-bottom: 5px;
+    }
+
+    /* 搜索和城市选择区域 */
+    .search-section {
+      padding: 15px;
+      background-color: #fff;
+      border-bottom: 1px solid #eee;
+    }
+
+    .city-search-bar {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .city-selector {
+      display: flex;
+      align-items: center;
+      padding: 8px 15px;
+      border-right: 1px solid #eee;
+      cursor: pointer;
+    }
+
+    .city-name {
+      margin: 0 5px;
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .search-input {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      background-color: #f5f5f5;
+      border-radius: 20px;
+      margin-left: 15px;
+      padding: 8px 15px;
+    }
+
+    .search-icon {
+      color: #999;
+      margin-right: 10px;
+    }
+
+    .search-input input {
+      border: none;
+      background: transparent;
+      outline: none;
+      flex: 1;
+      font-size: 14px;
+    }
+
+    /* 场馆列表 */
+    .venues-list {
+      padding: 15px;
+    }
+
+    .venue-card {
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 15px;
+      overflow: hidden;
+    }
+
+    .venue-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .venue-content {
+      padding: 15px;
+    }
+
+    .venue-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .venue-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .venue-distance {
+      display: flex;
+      align-items: center;
+      color: #ff6b00;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .venue-distance i {
+      margin-right: 5px;
+    }
+
+    .venue-info {
+      margin-bottom: 15px;
+    }
+
+    .venue-address, .venue-description, .venue-phone {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .venue-address i, .venue-phone i {
+      margin-right: 10px;
+      margin-top: 3px;
+      color: #999;
+      font-size: 14px;
+      width: 14px;
+      text-align: center;
+    }
+
+    .venue-description {
+      margin-left: 24px;
+      margin-bottom: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    /* 场馆标签 */
+    .venue-tags {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+      margin-left: 24px;
+    }
+    
+    .venue-tag {
+      font-size: 12px;
+      color: #666;
+      background-color: #f5f5f5;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+
+      /* 场馆图片和教练展示区域 */
+      .venue-image-container {
+                  position: relative;
+                  width: 100%;
+                  height: 200px;
+                  overflow: hidden;
+                }
+                
+                .venue-image {
+                  width: 100%;
+                  height: 100%;
+                  object-fit: cover;
+                }
+                
+                /* 图片内的场馆标签 */
+                .venue-image-tags {
+                  position: absolute;
+                  top: 10px;
+                  left: 10px;
+                  display: flex;
+                  flex-wrap: wrap;
+                  z-index: 10;
+                }
+                
+                .venue-image-tag {
+                  font-size: 12px;
+                  color: #fff;
+                  background-color: #ff6b00;
+                  padding: 2px 8px;
+                  border-radius: 4px;
+                  margin-right: 6px;
+                  margin-bottom: 6px;
+                  font-weight: 500;
+                  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                }
+                
+                /* 教练展示遮罩层 */
+                .coaches-overlay {
+                  position: absolute;
+                  bottom: 0;
+                  left: 0;
+                  right: 0;
+                  background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.4), transparent);
+                  padding: 15px 15px 10px;
+                  display: flex;
+                  align-items: center;
+                }
+                
+                .coaches-list {
+                  display: flex;
+                  overflow-x: auto;
+                  padding-bottom: 5px;
+                }
+                
+                .coaches-list::-webkit-scrollbar {
+                  display: none;
+                }
+                
+                .coach-card {
+                  min-width: auto;
+                  margin-right: 15px;
+                  display: flex;
+                  align-items: center;
+                }
+                
+                .coach-avatar {
+                  width: 35px;
+                  height: 35px;
+                  border-radius: 50%;
+                  overflow: hidden;
+                  margin-right: 8px;
+                  border: 1px solid rgba(255,255,255,0.5);
+                }
+                
+                .coach-avatar img {
+                  width: 100%;
+                  height: 100%;
+                  object-fit: cover;
+                }
+                
+                .coach-info {
+                  display: flex;
+                  flex-direction: column;
+                }
+                
+                .coach-name {
+                  font-size: 12px;
+                  color: #fff;
+                  margin-bottom: 2px;
+                }
+                
+                .coach-title {
+                  font-size: 10px;
+                  color: rgba(255,255,255,0.7);
+                }
+
+              
+                /* 课程购买区域 -->
+
+    /* 课程购买区域 */
+    .courses-section {
+      margin-top: 15px;
+      margin-bottom: 15px;
+      border-top: 1px solid #eee;
+      padding-top: 15px;
+    }
+    
+    .courses-list {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .course-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    
+    .course-info {
+      flex: 1;
+    }
+    
+    .course-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 5px;
+    }
+    
+    .course-price {
+      display: flex;
+      align-items: center;
+    }
+    
+    .flash-sale {
+      display: inline-block;
+      background-color: #ff3b30;
+      color: white;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-right: 6px;
+      font-weight: bold;
+    }
+    
+    .current-price {
+      font-size: 18px;
+      font-weight: bold;
+      color: #ff6b00;
+    }
+    
+    .original-price {
+      font-size: 14px;
+      color: #999;
+      text-decoration: line-through;
+      margin-left: 5px;
+    }
+    
+    .discount-tag {
+      display: inline-block;
+      background-color: #ff9500;
+      color: white;
+      font-size: 12px;
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-left: 5px;
+    }
+    
+    /* 购买按钮 */
+    .buy-now-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(to right, #ff6b00, #ff9500);
+      color: #fff;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(255, 107, 0, 0.3);
+      margin-left: 10px;
+      flex-shrink: 0;
+    }
+    
+    .buy-now-btn i {
+      font-size: 16px;
+    }
+
+    /* 立即预约按钮 */
+    .book-btn {
+      background-color: #ff6b00;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    
+    .book-now-btn {
+      background: linear-gradient(to right, #ff6b00, #ff9500);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 25px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 15px;
+      width: 100%;
+      box-shadow: 0 4px 10px rgba(255, 107, 0, 0.2);
+    }
+
+    /* 底部导航栏 */
+    .bottom-tab-bar {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        height: 70px;
+        background-color: #fff;
+        border-top: 1px solid #e0e0e0;
+        position: absolute; /* Stick to bottom of app-container */
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+    }
+
+    .tab-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #8e8e93; /* Default icon/text color */
+        font-size: 10px;
+        flex-grow: 1;
+        text-decoration: none;
+    }
+
+    .tab-item .fas {
+        font-size: 22px; /* Icon size */
+        margin-bottom: 3px;
+    }
+    .tab-item.active {
+        color: #000; /* Active icon/text color - 来自 index.html，首页激活 */
+    }
+
+    /* CTA Button in Tab Bar */
+    .tab-item-cta {
+      background: linear-gradient(45deg, #ff4e50, #f9d423); /* 火热的红橙黄渐变 */
+      color: #fff !important; /* White text */
+      padding: 0 20px; /* Horizontal padding */
+      height: 48px; /* Taller than other items */
+      border-radius: 24px; /* Pill shape */
+      font-size: 15px !important; /* 更大字体 */
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 0; /* Don't grow, fixed size based on content/padding */
+      flex-shrink: 0; /* Don't shrink */
+      margin: 0 5px; /* Spacing from neighbors */
+      animation: pulse-cta 1.5s infinite ease-in-out;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(255, 78, 80, 0.4); /* 红色阴影 */
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    /* 添加闪光效果 */
+    .tab-item-cta::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: rotate(45deg);
+      animation: shine 3s infinite linear;
+      z-index: -1;
+    }
+
+    /* 添加火焰效果 - 替换原来的表情符号 */
+    .tab-item-cta::after {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      right: -5px;
+      bottom: -5px;
+      border-radius: 28px;
+      background: linear-gradient(45deg, rgba(255, 69, 0, 0.6), rgba(255, 215, 0, 0.5));
+      z-index: -2;
+      filter: blur(8px);
+      opacity: 0.7;
+      animation: fire-glow 2s infinite alternate;
+    }
+
+    @keyframes fire-glow {
+      0% {
+        opacity: 0.5;
+        filter: blur(8px) brightness(1);
+      }
+      100% {
+        opacity: 0.8;
+        filter: blur(12px) brightness(1.2);
+      }
+    }
+
+    @keyframes shine {
+      0% {
+        left: -100%;
+        top: -100%;
+      }
+      100% {
+        left: 100%;
+        top: 100%;
+      }
+    }
+
+    @keyframes flicker {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.8;
+      }
+    }
+
+    .tab-item-cta:hover {
+      background: linear-gradient(45deg, #ff3019, #ff8e00); /* 更强烈的渐变色 */
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 48, 25, 0.5);
+    }
+
+    .tab-item-cta .fas {
+      display: none; /* Ensure no icon is shown even if structure implies */
+    }
+
+    .tab-item-cta span {
+      margin-bottom: 0 !important; /* Override any margin from .tab-item span */
+      font-size: inherit !important;
+      color: inherit !important;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2); /* 文字阴影效果 */
+    }
+
+    @keyframes pulse-cta {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 15px rgba(255, 78, 80, 0.4);
+      }
+      50% {
+        transform: scale(1.08);
+        box-shadow: 0 6px 20px rgba(255, 48, 25, 0.6);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-frame">
+    <div class="iphone-screen">
+      <!-- 灵动岛替代原来的刘海 -->
+      <div class="dynamic-island"></div>
+      
+      <!-- 状态栏 -->
+      <div class="status-bar">
+          <div class="status-time">10:12</div>
+          <div class="status-indicators">
+              <div class="status-cell">
+                  <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M16 0H2C0.9 0 0 0.9 0 2V10C0 11.1 0.9 12 2 12H16C17.1 12 18 11.1 18 10V2C18 0.9 17.1 0 16 0ZM11 10H2V2H11V10ZM16 10H12V2H16V10Z" fill="black"/>
+                  </svg>
+              </div>
+              <div class="status-wifi">
+                  <svg width="15" height="11" viewBox="0 0 15 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M7.5 10.5C8.328 10.5 9 9.828 9 9C9 8.172 8.328 7.5 7.5 7.5C6.672 7.5 6 8.172 6 9C6 9.828 6.672 10.5 7.5 10.5Z" fill="black"/>
+                      <path d="M0 3C2.076 1.107 4.674 0 7.5 0C10.326 0 12.924 1.107 15 3L13.326 4.674C11.682 3.15 9.684 2.25 7.5 2.25C5.316 2.25 3.318 3.15 1.674 4.674L0 3Z" fill="black"/>
+                      <path d="M3 6C4.167 4.917 5.75 4.25 7.5 4.25C9.25 4.25 10.833 4.917 12 6L10.5 7.5C9.75 6.833 8.667 6.5 7.5 6.5C6.333 6.5 5.25 6.833 4.5 7.5L3 6Z" fill="black"/>
+                  </svg>
+              </div>
+              <div class="status-battery">
+                  <svg width="25" height="12" viewBox="0 0 25 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="black"/>
+                      <rect x="2" y="2" width="18" height="8" rx="1.5" fill="black"/>
+                      <path d="M23 4V8C23.8 7.66667 24.3333 7 24.5 6C24.3333 5 23.8 4.33333 23 4Z" fill="black"/>
+                  </svg>
+              </div>
+          </div>
+      </div>
+      
+      <div class="app-container">
+        <!-- 应用头部占位符替代旧的状态栏 -->
+        <div class="app-header-placeholder"></div>
+    
+        <!-- 应用内容从这里开始 -->
+        <div class="main-content">
+          <!-- 页面标题 -->
+          <div class="header">
+            
+          </div>
+          
+          <!-- 场馆分类标签栏 -->
+          <div class="category-tabs">
+            <a href="#" class="category-tab active">
+              <i class="fas fa-dumbbell"></i>
+              <span>健身房</span>
+            </a>
+            <a href="#" class="category-tab">
+              <i class="fas fa-swimming-pool"></i>
+              <span>游泳馆</span>
+            </a>
+            <a href="#" class="category-tab">
+              <i class="fas fa-spa"></i>
+              <span>瑜伽馆</span>
+            </a>
+            <a href="#" class="category-tab">
+              <i class="fas fa-table-tennis"></i>
+              <span>羽毛球馆</span>
+            </a>
+            <a href="#" class="category-tab">
+              <i class="fas fa-bowling-ball"></i>
+              <span>台球馆</span>
+            </a>
+            <a href="#" class="category-tab">
+              <i class="fas fa-basketball-ball"></i>
+              <span>篮球馆</span>
+            </a>
+          </div>
+          
+          <!-- 搜索区域 -->
+          <div class="search-section">
+            <div class="city-search-bar">
+              <div class="city-selector">
+                <i class="fas fa-map-marker-alt"></i>
+                <span class="city-name">厦门</span>
+                <i class="fas fa-chevron-down" style="font-size: 12px; margin-left: 5px;"></i>
+              </div>
+              <div class="search-input">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="搜索场馆、课程">
+              </div>
+            </div>
+          </div>
+          
+          <!-- 场馆列表 -->
+          <div class="venues-list">
+            <!-- 场馆卡片1 -->
+            <div class="venue-card">
+              <div class="venue-image-container">
+                <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="venue-image" alt="健身房">
+                <!-- 场馆标签 - 移到图片内左上方 -->
+                <div class="venue-image-tags">
+                  <span class="venue-image-tag">健身房</span>
+                  <span class="venue-image-tag">女子专属</span>
+                  <span class="venue-image-tag">普拉提</span>
+                </div>
+                <!-- 教练展示遮罩层 -->
+                <div class="coaches-overlay">
+                  <div class="coaches-list">
+                    <div class="coach-card">
+                      <div class="coach-avatar">
+                        <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="教练头像">
+                      </div>
+                      <div class="coach-info">
+                        <div class="coach-name">李教练</div>
+                        <div class="coach-title">高级教练</div>
+                      </div>
+                    </div>
+                    <div class="coach-card">
+                      <div class="coach-avatar">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="教练头像">
+                      </div>
+                      <div class="coach-info">
+                        <div class="coach-name">王教练</div>
+                        <div class="coach-title">瑜伽导师</div>
+                      </div>
+                    </div>
+                    <div class="coach-card">
+                      <div class="coach-avatar">
+                        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="教练头像">
+                      </div>
+                      <div class="coach-info">
+                        <div class="coach-name">张教练</div>
+                        <div class="coach-title">普拉提教练</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="venue-content">
+                <div class="venue-header">
+                  <div class="venue-name">艾莉可女子健身普拉提馆(万科云城店)</div>
+                  <div class="venue-distance">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>4.5km</span>
+                  </div>
+                </div>
+                <div class="venue-info">
+                  <div class="venue-address">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>云城万科云城健身中心3F市中心1号</span>
+                    <a href="tel:0592-1234567" class="venue-phone-link">
+                      <i class="fas fa-phone-alt" style="margin-left: 10px; color: #ff6b00;"></i>
+                    </a>
+                  </div>
+                  <div class="venue-description">
+                    <span>"百年传奇"云城万科旗舰店高端专业女子健身房，价格实惠</span>
+                  </div>
+                </div>
+                
+                <!-- 移除原来的标签区域 -->
+                
+              
+                <div class="courses-section">
+                  <div class="courses-list">
+                    <div class="course-card">
+                      <div class="course-info">
+                        <div class="course-name">【常规私教】减脂塑形提高代谢</div>
+                        <div class="course-price">
+                          <span class="flash-sale">秒杀</span>
+                          <span class="current-price">¥37.9</span>
+                          <span class="original-price">¥68</span>
+                          <span class="discount-tag">5.6折</span>
+                        </div>
+                      </div>
+                      <!-- 添加购买按钮 -->
+                      <button class="buy-now-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                      </button>
+                    </div>
+                    <div class="course-card">
+                      <div class="course-info">
+                        <div class="course-name">【新人专享】单人体验课</div>
+                        <div class="course-price">
+                          <span class="current-price">¥9.9</span>
+                          <span class="original-price">¥128</span>
+                          <span class="discount-tag">0.8折</span>
+                        </div>
+                      </div>
+                      <!-- 添加购买按钮 -->
+                      <button class="buy-now-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="venue-card">
+              <div class="venue-image-container">
+                <img src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="venue-image" alt="健身房">
+                <!-- 场馆标签 - 移到图片内左上方 -->
+                <div class="venue-image-tags">
+                  <span class="venue-image-tag">健身房</span>
+                  <span class="venue-image-tag">24小时</span>
+                  <span class="venue-image-tag">器械齐全</span>
+                </div>
+                <!-- 教练展示遮罩层 -->
+                <div class="coaches-overlay">
+                  <div class="coaches-list">
+                    <div class="coach-card">
+                      <div class="coach-avatar">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="教练头像">
+                      </div>
+                      <div class="coach-info">
+                        <div class="coach-name">张教练</div>
+                        <div class="coach-title">私教总监</div>
+                      </div>
+                    </div>
+                    <div class="coach-card">
+                      <div class="coach-avatar">
+                        <img src="https://randomuser.me/api/portraits/men/44.jpg" alt="教练头像">
+                      </div>
+                      <div class="coach-info">
+                        <div class="coach-name">刘教练</div>
+                        <div class="coach-title">力量训练</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="venue-content">
+                <div class="venue-header">
+                  <div class="venue-name">星动力健身中心</div>
+                  <div class="venue-distance">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>1.8km</span>
+                  </div>
+                </div>
+                <div class="venue-info">
+                  <div class="venue-address">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>思明区湖滨南路76号</span>
+                    <a href="tel:0592-5678901" class="venue-phone-link">
+                      <i class="fas fa-phone-alt" style="margin-left: 10px; color: #ff6b00;"></i>
+                    </a>
+                  </div>
+                  <div class="venue-description">
+                    <span>24小时营业的现代化健身中心，配备先进器械和专业教练团队</span>
+                  </div>
+                </div>
+                
+                <!-- 课程购买区域 -->
+                <div class="courses-section">
+                  <div class="courses-list">
+                    <div class="course-card">
+                      <div class="course-info">
+                        <div class="course-name">【新人体验】单人健身体验课</div>
+                        <div class="course-price">
+                          <span class="flash-sale">秒杀</span>
+                          <span class="current-price">¥19.9</span>
+                          <span class="original-price">¥99</span>
+                          <span class="discount-tag">2折</span>
+                        </div>
+                      </div>
+                      <!-- 添加购买按钮 -->
+                      <button class="buy-now-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                      </button>
+                    </div>
+                    <div class="course-card">
+                      <div class="course-info">
+                        <div class="course-name">【团课】动感单车10次卡</div>
+                        <div class="course-price">
+                          <span class="current-price">¥199</span>
+                          <span class="original-price">¥399</span>
+                          <span class="discount-tag">5折</span>
+                        </div>
+                      </div>
+                      <!-- 添加购买按钮 -->
+                      <button class="buy-now-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 场馆卡片3 -->
+            <div class="venue-card">
+              <div class="venue-image-container">
+                <img src="https://images.unsplash.com/photo-1570829460005-c840387bb1ca?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="venue-image" alt="瑜伽馆">
+                <!-- 场馆标签 - 移到图片内左上方 -->
+                <div class="venue-image-tags">
+                  <span class="venue-image-tag">瑜伽馆</span>
+                  <span class="venue-image-tag">小班教学</span>
+                  <span class="venue-image-tag">环境优雅</span>
+                </div>
+                <!-- 教练展示遮罩层 -->
+                <div class="coaches-overlay">
+                  <div class="coaches-list">
+                    <div class="coach-card">
+                      <div class="coach-avatar">
+                        <img src="https://randomuser.me/api/portraits/women/28.jpg" alt="教练头像">
+                      </div>
+                      <div class="coach-info">
+                        <div class="coach-name">林教练</div>
+                        <div class="coach-title">瑜伽大师</div>
+                      </div>
+                    </div>
+                    <div class="coach-card">
+                      <div class="coach-avatar">
+                        <img src="https://randomuser.me/api/portraits/women/56.jpg" alt="教练头像">
+                      </div>
+                      <div class="coach-info">
+                        <div class="coach-name">陈教练</div>
+                        <div class="coach-title">哈他瑜伽</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="venue-content">
+                <div class="venue-header">
+                  <div class="venue-name">静心瑜伽生活馆</div>
+                  <div class="venue-distance">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>2.3km</span>
+                  </div>
+                </div>
+                <div class="venue-info">
+                  <div class="venue-address">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>思明区鹭江道100号嘉禾广场5楼</span>
+                    <a href="tel:0592-8765432" class="venue-phone-link">
+                      <i class="fas fa-phone-alt" style="margin-left: 10px; color: #ff6b00;"></i>
+                    </a>
+                  </div>
+                  <div class="venue-description">
+                    <span>专业瑜伽馆，提供多种瑜伽课程，环境优雅，小班授课</span>
+                  </div>
+                </div>
+                
+                <!-- 课程购买区域 -->
+                <div class="courses-section">
+                  <div class="courses-list">
+                    <div class="course-card">
+                      <div class="course-info">
+                        <div class="course-name">【新人专享】瑜伽体验课3次</div>
+                        <div class="course-price">
+                          <span class="flash-sale">秒杀</span>
+                          <span class="current-price">¥39</span>
+                          <span class="original-price">¥297</span>
+                          <span class="discount-tag">1.3折</span>
+                        </div>
+                      </div>
+                      <!-- 添加购买按钮 -->
+                      <button class="buy-now-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                      </button>
+                    </div>
+                    
+                    <div class="course-card">
+                      <div class="course-info">
+                        <div class="course-name">【月卡】瑜伽无限次卡</div>
+                        <div class="course-price">
+                          <span class="current-price">¥398</span>
+                          <span class="original-price">¥698</span>
+                          <span class="discount-tag">5.7折</span>
+                        </div>
+                      </div>
+                      <!-- 添加购买按钮 -->
+                      <button class="buy-now-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+        
+        <!-- 底部导航栏 -->
+        <div class="bottom-tab-bar">
+          <a href="index.html" class="tab-item">
+            <i class="fas fa-home"></i>
+            <span>首页</span>
+          </a>
+          <a href="venues.html" class="tab-item active">
+            <i class="fas fa-dumbbell"></i>
+            <span>场馆</span>
+          </a>
+                              <a href="events.html" class="tab-item-cta">
+                        <span>热门赛事</span>
+                    </a>
+          <a href="course.html" class="tab-item">
+            <i class="fas fa-calendar-alt"></i>
+            <span>课程</span>
+          </a>
+          <a href="my.html" class="tab-item">
+            <i class="fas fa-user"></i>
+            <span>我的</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

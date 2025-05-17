@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>添加助教 - Deep Fit</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script>
+    // 页面加载完成后设置缩放比例为80%
+    window.onload = function() {
+      document.body.style.zoom = "80%";
+    }
+  </script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f0f2f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft Yahei', sans-serif;
+    }
+
+    .iphone-frame {
+      position: relative;
+      width: 428px;
+      height: 926px;
+      background-color: #1c1c1e;
+      border-radius: 55px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      padding: 5px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .iphone-screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-color: #f0f2f5;
+      border-radius: 48px;
+      overflow: hidden;
+    }
+
+    /* Dynamic Island */
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 37px;
+      background-color: #000;
+      border-radius: 24px;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Small indicator light in Dynamic Island */
+    .dynamic-island::after {
+      content: '';
+      position: absolute;
+      right: 28px;
+      width: 8px;
+      height: 8px;
+      background-color: #09c95e;
+      border-radius: 50%;
+    }
+
+    .app-container {
+      height: 100%;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Hide scrollbar for a cleaner look */
+    .app-container::-webkit-scrollbar {
+      display: none;
+    }
+    .app-container {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .app-header-placeholder {
+      height: 65px;
+      width: 100%;
+    }
+    
+    .main-content {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding-bottom: 70px;
+      background-color: #f5f5f5;
+    }
+    
+    .main-content::-webkit-scrollbar {
+      display: none;
+    }
+    .main-content {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Status Bar iOS style */
+    .status-bar {
+      position: absolute;
+      top: 14px;
+      left: 0;
+      right: 0;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #000;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 150;
+    }
+
+    .status-time {
+      position: absolute;
+      left: 32px;
+    }
+
+    .status-indicators {
+      position: absolute;
+      right: 32px;
+      display: flex;
+      align-items: center;
+    }
+
+    .status-cell, .status-wifi, .status-battery {
+      margin-left: 8px;
+    }
+
+    /* 顶部导航栏 */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      background-color: #fff;
+      position: relative;
+      justify-content: center; /* 添加居中对齐 */
+    }
+
+    .back-button {
+      font-size: 20px;
+      color: #000;
+      margin-right: 15px;
+      text-decoration: none;
+      position: absolute; /* 绝对定位 */
+      left: 15px; /* 左侧固定位置 */
+      z-index: 10; /* 确保在标题上方 */
+    }
+
+    .page-title {
+      font-size: 18px;
+      font-weight: 500;
+      color: #000;
+      text-align: center;
+      position: absolute;
+      left: 0;
+      right: 0;
+      margin: auto;
+      width: 100%;
+      pointer-events: none; /* 确保点击事件可以穿透到下面的返回按钮 */
+    }
+    
+    /* 欢迎消息区域 */
+    .welcome-message {
+      background-color: #f5f5f5;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    .welcome-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 15px;
+      overflow: hidden;
+    }
+
+    .welcome-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .welcome-text {
+      flex-grow: 1;
+      font-size: 14px;
+      color: #333;
+      line-height: 1.5;
+    }
+
+    .welcome-text p {
+      margin: 0;
+      padding: 0;
+    }
+
+    .welcome-text .greeting {
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    /* 添加助教标题 */
+    .section-title {
+      padding: 15px 20px;
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+      background-color: #f5f5f5;
+      border-left: 4px solid #8BC34A;
+      margin: 0;
+    }
+
+    /* 助教卡片 */
+    .assistant-card {
+      background-color: #fff;
+      margin: 15px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .assistant-header {
+      display: flex;
+      align-items: center;
+      padding: 15px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .assistant-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-right: 15px;
+    }
+
+    .assistant-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .assistant-info {
+      flex-grow: 1;
+    }
+
+    .assistant-name {
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+    }
+
+    .online-indicator {
+      display: inline-block;
+      font-size: 12px;
+      color: #8BC34A;
+      background-color: rgba(139, 195, 74, 0.1);
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: 10px;
+    }
+
+    .assistant-hours {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .assistant-content {
+      padding: 15px;
+    }
+
+    .assistant-message {
+      font-size: 14px;
+      color: #333;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .qr-code-container {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .qr-code {
+      width: 180px;
+      height: 180px;
+      background-color: #f0f0f0;
+    }
+
+    .qr-code img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .qr-code-hint {
+      text-align: center;
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .qr-code-hint span {
+      color: #8BC34A;
+      font-weight: 500;
+    }
+
+    /* 服务项目列表 */
+    .service-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      padding: 0 15px 15px;
+    }
+
+    .service-item {
+      display: flex;
+      align-items: center;
+      background-color: #f9f9f9;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .service-number {
+      width: 24px;
+      height: 24px;
+      background-color: #8BC34A;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+      margin-right: 10px;
+    }
+
+    .service-text {
+      font-size: 13px;
+      color: #333;
+    }
+
+    /* 底部按钮 */
+    .bottom-button {
+      background-color: #8BC34A;
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      font-size: 16px;
+      font-weight: 500;
+      padding: 15px 0;
+      width: 90%;
+      margin: 20px auto;
+      display: block;
+      text-align: center;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-frame">
+    <div class="iphone-screen">
+      <!-- Dynamic Island -->
+      <div class="dynamic-island"></div>
+      
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <div class="status-time">5:13</div>
+        <div class="status-indicators">
+          <div class="status-cell">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 0H2C0.9 0 0 0.9 0 2V10C0 11.1 0.9 12 2 12H16C17.1 12 18 11.1 18 10V2C18 0.9 17.1 0 16 0ZM11 10H2V2H11V10ZM16 10H12V2H16V10Z" fill="black"/>
+            </svg>
+          </div>
+          <div class="status-wifi">
+            <svg width="15" height="11" viewBox="0 0 15 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7.5 10.5C8.328 10.5 9 9.828 9 9C9 8.172 8.328 7.5 7.5 7.5C6.672 7.5 6 8.172 6 9C6 9.828 6.672 10.5 7.5 10.5Z" fill="black"/>
+              <path d="M0 3C2.076 1.107 4.674 0 7.5 0C10.326 0 12.924 1.107 15 3L13.326 4.674C11.682 3.15 9.684 2.25 7.5 2.25C5.316 2.25 3.318 3.15 1.674 4.674L0 3Z" fill="black"/>
+              <path d="M3 6C4.167 4.917 5.75 4.25 7.5 4.25C9.25 4.25 10.833 4.917 12 6L10.5 7.5C9.75 6.833 8.667 6.5 7.5 6.5C6.333 6.5 5.25 6.833 4.5 7.5L3 6Z" fill="black"/>
+            </svg>
+          </div>
+          <div class="status-battery">
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="black"/>
+              <rect x="2" y="2" width="18" height="8" rx="1.5" fill="black"/>
+              <path d="M23 4V8C23.8 7.66667 24.3333 7 24.5 6C24.3333 5 23.8 4.33333 23 4Z" fill="black"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <div class="app-container">
+        <!-- App header placeholder -->
+        <div class="app-header-placeholder"></div>
+
+        <!-- App Content Starts Here -->
+        <div class="main-content">
+          <!-- 顶部导航栏 -->
+          <div class="top-nav">
+            <a href="#" class="back-button">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+            <div class="page-title">添加助教</div>
+          </div>
+
+          <!-- 欢迎消息 -->
+          <div class="welcome-message">
+            <div class="welcome-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <div class="welcome-text">
+              <p class="greeting">Hi, 卡卡</p>
+              <p>恭喜你已成功获得DeepFit课程包</p>
+            </div>
+          </div>
+
+          <!-- 添加助教标题 -->
+          <div class="section-title">添加助教</div>
+
+          <!-- 助教卡片 -->
+          <div class="assistant-card">
+            <div class="assistant-header">
+              <div class="assistant-avatar">
+                <img src="../images/assistant.png" alt="助教头像" onerror="this.src='https://via.placeholder.com/50'">
+              </div>
+              <div class="assistant-info">
+                <div class="assistant-name">
+                 课程顾问心心
+                  <span class="online-indicator">在线</span>
+                </div>
+                <div class="assistant-hours">10:00-21:00 快速响应</div>
+              </div>
+            </div>
+            <div class="assistant-content">
+              <div class="assistant-message">
+                Hi，我是课程顾问心心，为你解决任何疑问，添加我，将为你推荐最合适的课程
+              </div>
+              <div class="qr-code-container">
+                <div class="qr-code">
+                  <img src="../images/qrcode.png" alt="二维码" onerror="this.src='https://via.placeholder.com/180'">
+                </div>
+              </div>
+              <div class="qr-code-hint">
+                保存二维码添加你的 <span>助理教练</span>
+              </div>
+
+              <!-- 服务项目列表 -->
+              <div class="service-list">
+                <div class="service-item">
+                  <div class="service-number">01</div>
+                  <div class="service-text">介绍上课特色、方式</div>
+                </div>
+                <div class="service-item">
+                  <div class="service-number">04</div>
+                  <div class="service-text">寄出上课工具(如有)</div>
+                </div>
+                <div class="service-item">
+                  <div class="service-number">02</div>
+                  <div class="service-text">训练规划与建议</div>
+                </div>
+                <div class="service-item">
+                  <div class="service-number">05</div>
+                  <div class="service-text">介绍式课课程价格</div>
+                </div>
+                <div class="service-item">
+                  <div class="service-number">03</div>
+                  <div class="service-text">帮您约课与改课</div>
+                </div>
+                <div class="service-item">
+                  <div class="service-number">06</div>
+                  <div class="service-text">退款与发票等</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 上课方式说明标题 -->
+          <div class="section-title">上课方式说明</div>
+
+          <!-- 底部按钮 -->
+          <button class="bottom-button">跳转微信添加助教</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 可以添加交互功能
+    document.querySelector('.bottom-button').addEventListener('click', function() {
+      alert('即将跳转到微信...');
+    });
+  </script>
+</body>
+</html>

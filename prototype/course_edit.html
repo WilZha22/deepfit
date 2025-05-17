@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>编辑/新建课程</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    body { font-family: -apple-system,BlinkMacSystemFont,'Helvetica Neue',Helvetica,'PingFang SC','Microsoft Yahei',sans-serif; margin:0; padding:0; background:#f5f6fa; display:flex; flex-direction:column; align-items:center; min-height:100vh; }
+    .iphone-frame {
+      width:428px; height:926px; background:#1c1c1e; border-radius:55px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.3); margin:20px 0;
+      position:relative;
+      transform: scale(0.8);
+      transform-origin: top center;
+      /* You might need to adjust margin-bottom if there's content below the frame, 
+         as scale reduces the space it visually takes but not its original footprint for layout purposes without further adjustments. 
+         For now, assuming it's the primary centered content. */
+    }
+    .iphone-screen { 
+      width:100%; 
+      height:100%; 
+      background:#f5f6fa; 
+      border-radius:48px; 
+      overflow:hidden; 
+      position:relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .dynamic-island { position:absolute; top:12px; left:50%; transform:translateX(-50%); width:126px; height:37px; background:#000; border-radius:24px; z-index:200; display:flex; align-items:center; justify-content:center; }
+    .status-bar { position:absolute; top:14px; left:0; right:0; padding:0 20px; display:flex; justify-content:space-between; align-items:center; color:#000; font-size:14px; font-weight:500; z-index:150; }
+    .status-time { position:absolute; left:32px; }
+    .status-indicators { position:absolute; right:32px; display:flex; align-items:center; }
+    .status-cell, .status-wifi, .status-battery { margin-left:8px; }
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+    }
+    .app-header-placeholder { height:65px; width:100%; }
+    .top-nav { display:flex; align-items:center; justify-content:flex-start; padding:15px 0 0 0; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,0.05); position:relative; height:48px; z-index:10; }
+    .back-btn { margin-left:6px; margin-right:0; background:none; border:none; color:#333; font-size:22px; cursor:pointer; display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; transition:background 0.2s; }
+    .back-btn:active { background:#f0f0f0; }
+    .header-title { position:absolute; left:0; right:0; text-align:center; font-size:20px; font-weight:700; color:#222; letter-spacing:1px; pointer-events:none; }
+    .main-content { 
+      flex: 1;
+      overflow-y: auto; 
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 85px;
+      position: relative;
+    }
+    .main-content::-webkit-scrollbar { display:none; }
+    .main-content { -ms-overflow-style:none; scrollbar-width:none; }
+    .form-section { background:#fff; border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,0.06); padding:20px 18px 12px 18px; margin:20px auto; width:90%; max-width:380px; display:flex; flex-direction:column; gap:16px; }
+    .form-group { display:flex; flex-direction:column; gap:6px; }
+    .form-label { font-size:15px; color:#333; font-weight:600; margin-bottom:2px; }
+    .form-input, .form-select, .form-number { font-size:15px; padding:10px 12px; border:1px solid #e0e0e0; border-radius:8px; background:#fafbfc; outline:none; box-sizing:border-box; width:100%; }
+    .form-select { appearance:none; }
+    .form-row { display:flex; gap:8px; align-items:center; }
+    .tag-list { display:flex; flex-wrap:wrap; gap:8px; }
+    .tag-item { background:#e8f5e9; color:#4CAF50; border-radius:6px; padding:2px 10px; font-size:13px; border:1px solid #c8e6c9; cursor:pointer; user-select:none; }
+    .tag-item.selected { background:#4CAF50; color:#fff; }
+    .add-tag-btn { background:none; border:none; color:#2196F3; font-size:16px; cursor:pointer; margin-left:4px; }
+    .process-list, .action-list { display:flex; flex-direction:column; gap:8px; }
+    .process-item, .action-item { display:flex; align-items:center; gap:8px; }
+    .process-input { flex:1; min-width:0; font-size:15px; padding:6px 10px; border:1px solid #e0e0e0; border-radius:8px; background:#fafbfc; }
+    .remove-btn { background:none; border:none; color:#F44336; font-size:18px; cursor:pointer; }
+    .add-btn { background:none; border:none; color:#4CAF50; font-size:15px; cursor:pointer; margin-left:2px; padding: 6px 0; }
+    .action-img-btn { width:48px; height:34px; border-radius:8px; background:#f0f2f5; border:1px solid #e0e0e0; display:flex; align-items:center; justify-content:center; font-size:16px; color:#666; cursor:pointer; transition:background 0.2s; flex-shrink:0; }
+    .action-img-btn:active { background:#e0e0e0; }
+    .action-img-preview { width:48px; height:34px; border-radius:8px; object-fit:cover; border:1px solid #e0e0e0; margin-right:4px; flex-shrink:0; }
+    .action-input { font-size:15px; padding:6px 10px; border:1px solid #e0e0e0; border-radius:8px; background:#fafbfc; }
+    .action-name-field { flex:1; min-width:0; }
+    .action-num { width:45px; padding:6px 8px; text-align:center; }
+    .form-row.price-row { gap:10px; }
+    .form-input.price { width:100px; }
+    .form-actions {
+      position:absolute;
+      bottom:0;
+      left:0;
+      width:100%;
+      background:#ffffff;
+      padding:12px 18px;
+      box-shadow:0 -2px 10px rgba(0,0,0,0.08);
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      box-sizing:border-box;
+      z-index:100;
+    }
+    .form-actions button { flex:1; font-size:16px; padding:12px 0; border:none; border-radius:24px; font-weight:700; cursor:pointer; transition:background 0.2s; }
+    .btn-preview { background:#fff; color:#4CAF50; border:2px solid #4CAF50; }
+    .btn-save { background:#FF9800; color:#fff; }
+    .btn-publish { background:linear-gradient(135deg,#8BC34A,#4CAF50); color:#fff; }
+    .btn-preview:active { background:#f0f0f0; }
+    .btn-save:active { background:#fb8c00; }
+    .btn-publish:active { background:#388E3C; }
+  </style>
+</head>
+<body>
+  <div class="iphone-frame">
+    <div class="iphone-screen">
+      <div class="dynamic-island"></div>
+      <div class="status-bar">
+        <div class="status-time">9:41</div>
+        <div class="status-indicators">
+          <div class="status-cell"><svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 0H2C0.9 0 0 0.9 0 2V10C0 11.1 0.9 12 2 12H16C17.1 12 18 11.1 18 10V2C18 0.9 17.1 0 16 0ZM11 10H2V2H11V10ZM16 10H12V2H16V10Z" fill="black"/></svg></div>
+          <div class="status-wifi"><svg width="15" height="11" viewBox="0 0 15 11" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 10.5C8.328 10.5 9 9.828 9 9C9 8.172 8.328 7.5 7.5 7.5C6.672 7.5 6 8.172 6 9C6 9.828 6.672 10.5 7.5 10.5Z" fill="black"/><path d="M0 3C2.076 1.107 4.674 0 7.5 0C10.326 0 12.924 1.107 15 3L13.326 4.674C11.682 3.15 9.684 2.25 7.5 2.25C5.316 2.25 3.318 3.15 1.674 4.674L0 3Z" fill="black"/><path d="M3 6C4.167 4.917 5.75 4.25 7.5 4.25C9.25 4.25 10.833 4.917 12 6L10.5 7.5C9.75 6.833 8.667 6.5 7.5 6.5C6.333 6.5 5.25 6.833 4.5 7.5L3 6Z" fill="black"/></svg></div>
+          <div class="status-battery"><svg width="25" height="12" viewBox="0 0 25 12" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="black"/><rect x="2" y="2" width="18" height="8" rx="1.5" fill="black"/><path d="M23 4V8C23.8 7.66667 24.3333 7 24.5 6C24.3333 5 23.8 4.33333 23 4Z" fill="black"/></svg></div>
+        </div>
+      </div>
+      <div class="app-container">
+        <div class="app-header-placeholder"></div>
+        <div class="top-nav">
+          <button class="back-btn" onclick="window.history.back()"><i class="fas fa-chevron-left"></i></button>
+          <span class="header-title">编辑/新建课程</span>
+        </div>
+        <div class="main-content">
+          <form class="form-section" id="courseForm">
+            <div class="form-group">
+              <label class="form-label">课程标题</label>
+              <input class="form-input" type="text" placeholder="请输入课程标题" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">类型</label>
+              <select class="form-select">
+                <option value="group">团课</option>
+                <option value="private">私教</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">课程价格</label>
+              <div style="display:flex; gap:12px; align-items:center;">
+                <div style="display:flex; align-items:center; gap:8px; flex:1;">
+                  <label style="white-space:nowrap; font-size:13px; color:#555; font-weight:600;">原价</label>
+                  <input class="form-input" type="number" min="0" step="0.01" placeholder="¥" style="flex:1;">
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; flex:1;">
+                  <label style="white-space:nowrap; font-size:13px; color:#555; font-weight:600;">折扣价</label>
+                  <input class="form-input" type="number" min="0" step="0.01" placeholder="¥" style="flex:1;">
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">课程时间</label>
+              <div class="form-row">
+                <input class="form-input" id="startTime" type="text" placeholder="开始时间" required readonly style="flex:1;min-width:0;">
+                <span style="color:#888;font-size:16px;">-</span>
+                <input class="form-input" id="endTime" type="text" placeholder="结束时间" required readonly style="flex:1;min-width:0;">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">限制报名人数</label>
+              <input class="form-number" type="number" min="1" max="100" placeholder="请输入最大人数" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">标签</label>
+              <div class="tag-list" id="tagList">
+                <span class="tag-item">燃脂</span>
+                <span class="tag-item">塑形</span>
+                <span class="tag-item">拉伸</span>
+                <span class="tag-item">康复</span>
+                <span class="tag-item">高强度</span>
+                <span class="tag-item">低冲击</span>
+                <button type="button" class="add-tag-btn" onclick="addTag()"><i class="fas fa-plus"></i> 新标签</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">课程流程</label>
+              <div class="process-list" id="processList">
+                <div class="process-item"><input class="process-input" type="text" placeholder="流程名称 (例如: 热身)"><button type="button" class="remove-btn" onclick="removeProcess(this)"><i class="fas fa-times"></i></button></div>
+              </div>
+              <button type="button" class="add-btn" style="font-size:14px;" onclick="addProcess()"><i class="fas fa-plus"></i> 添加流程</button>
+            </div>
+            <div class="form-group">
+              <label class="form-label">课程动作</label>
+              <div class="action-list" id="actionList">
+                <div class="action-item">
+                  <input type="file" accept="image/*" style="display:none" onchange="showActionImg(this)">
+                  <span class="action-img-btn" onclick="triggerImageUpload(this)" title="上传图片"><i class="fas fa-upload"></i></span>
+                  <input class="action-input action-name-field" type="text" placeholder="动作名称 (例如: 深蹲)">
+                  <input class="action-input action-num" type="number" min="1" placeholder="组">
+                  <span style="margin:0 2px; color:#888;">组</span>
+                  <input class="action-input action-num" type="number" min="1" placeholder="次数">
+                  <span style="margin:0 2px; color:#888;">次</span>
+                  <button type="button" class="remove-btn" onclick="removeAction(this)"><i class="fas fa-times"></i></button>
+                </div>
+              </div>
+              <button type="button" class="add-btn" style="font-size:14px;" onclick="addAction()"><i class="fas fa-plus"></i> 添加动作</button>
+            </div>
+          </form>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-preview" onclick="previewCourse()">预览</button>
+          <button type="button" class="btn-save" onclick="saveCourseDraft()">暂存</button>
+          <button type="submit" class="btn-publish" form="courseForm">发布</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+    // 标签多选
+    document.querySelectorAll('.tag-item').forEach(function(tag){
+      tag.onclick = function(){ this.classList.toggle('selected'); };
+    });
+    function addTag() {
+      var tag = prompt('请输入新标签');
+      if(tag){
+        var el = document.createElement('span');
+        el.className = 'tag-item selected';
+        el.innerText = tag;
+        el.onclick = function(){ this.classList.toggle('selected'); };
+        document.getElementById('tagList').insertBefore(el, document.querySelector('.add-tag-btn'));
+      }
+    }
+    // 课程流程
+    function addProcess() {
+      var list = document.getElementById('processList');
+      var div = document.createElement('div');
+      div.className = 'process-item';
+      div.innerHTML = '<input class="process-input" type="text" placeholder="流程名称 (例如: 热身)"><button type="button" class="remove-btn" onclick="removeProcess(this)"><i class="fas fa-times"></i></button>';
+      list.appendChild(div);
+      // Auto-scroll to the new item within the mobile view
+      setTimeout(() => {
+        const mainContent = document.querySelector('.main-content');
+        // Scroll just enough to see the new element
+        mainContent.scrollTop = list.offsetTop + list.offsetHeight - mainContent.clientHeight + 100; 
+      }, 50);
+    }
+    function removeProcess(btn) {
+      btn.parentNode.remove();
+    }
+    // 课程动作
+    function addAction() {
+      var list = document.getElementById('actionList');
+      var div = document.createElement('div');
+      div.className = 'action-item';
+      div.innerHTML = '<input type="file" accept="image/*" style="display:none" onchange="showActionImg(this)"><span class="action-img-btn" onclick="triggerImageUpload(this)" title="上传图片"><i class="fas fa-upload"></i></span><input class="action-input action-name-field" type="text" placeholder="动作名称 (例如: 深蹲)"><input class="action-input action-num" type="number" min="1" placeholder="组"><span style="margin:0 2px; color:#888;">组</span><input class="action-input action-num" type="number" min="1" placeholder="次数"><span style="margin:0 2px; color:#888;">次</span><button type="button" class="remove-btn" onclick="removeAction(this)"><i class="fas fa-times"></i></button>';
+      list.appendChild(div);
+      // Auto-scroll to the new item within the mobile view
+      setTimeout(() => {
+        const mainContent = document.querySelector('.main-content');
+        // Scroll just enough to see the new element
+        mainContent.scrollTop = list.offsetTop + list.offsetHeight - mainContent.clientHeight + 100; 
+      }, 50);
+    }
+    function removeAction(btn) {
+      btn.parentNode.remove();
+    }
+    // flatpickr 日期选择
+    flatpickr("#startTime", { enableTime: true, dateFormat: "Y-m-d H:i", time_24hr: true });
+    flatpickr("#endTime", { enableTime: true, dateFormat: "Y-m-d H:i", time_24hr: true });
+    // 课程动作图片预览
+    function showActionImg(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          let btn = input.nextElementSibling;
+          let preview = btn.previousElementSibling;
+          if (!preview || !preview.classList.contains('action-img-preview')) {
+            // Check if there's already a preview sibling (could be the icon itself if no image yet)
+            let existingPreview = btn.parentNode.querySelector('.action-img-preview');
+            if (existingPreview) {
+                preview = existingPreview;
+            } else {
+                preview = document.createElement('img');
+                preview.className = 'action-img-preview';
+                // Insert preview before the upload button (span)
+                btn.parentNode.insertBefore(preview, btn);
+            }
+          }
+          preview.src = e.target.result;
+          btn.style.display = 'none'; // Hide the icon button after image is selected
+          preview.style.display = 'inline-block'; // Show the preview
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    // Helper function to trigger file input click
+    function triggerImageUpload(spanElement) {
+      spanElement.previousElementSibling.click();
+    }
+
+    // Placeholder functions for bottom buttons
+    function previewCourse() {
+      alert('预览课程');
+      // Collect form data and show a preview
+    }
+    function saveCourseDraft() {
+      alert('课程已暂存');
+      // Collect form data and save as draft
+    }
+    // Form submission will be handled by the '发布' button via form attribute
+  </script>
+</body>
+</html> 

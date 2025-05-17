@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会员购买</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script>
+        // 页面加载完成后设置缩放比例为80%
+        window.onload = function() {
+          document.body.style.zoom = "80%";
+          startCountdown();
+        }
+        
+        // 倒计时功能
+        function startCountdown() {
+            // 设置初始时间为4分52秒
+            let minutes = 4;
+            let seconds = 52;
+            
+            const minutesTensElem = document.getElementById('minutes-tens');
+            const minutesOnesElem = document.getElementById('minutes-ones');
+            const secondsTensElem = document.getElementById('seconds-tens');
+            const secondsOnesElem = document.getElementById('seconds-ones');
+            
+            const countdown = setInterval(() => {
+                seconds--;
+                
+                if (seconds < 0) {
+                    seconds = 59;
+                    minutes--;
+                }
+                
+                if (minutes < 0) {
+                    clearInterval(countdown);
+                    minutes = 0;
+                    seconds = 0;
+                }
+                
+                // 更新显示
+                minutesTensElem.textContent = Math.floor(minutes / 10);
+                minutesOnesElem.textContent = minutes % 10;
+                secondsTensElem.textContent = Math.floor(seconds / 10);
+                secondsOnesElem.textContent = seconds % 10;
+            }, 1000);
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft Yahei', sans-serif;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+        }
+        
+        .iphone-frame {
+            position: relative;
+            width: 428px; /* iPhone 14 Pro Max width */
+            height: 926px; /* iPhone 14 Pro Max height */
+            background-color: #1c1c1e; /* Dark grey for the phone body */
+            border-radius: 55px; /* Rounded corners for the phone */
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            padding: 5px; /* Small padding for the bezel */
+            margin-top: 20px; /* Space from top */
+            margin-bottom: 20px; /* Space from bottom */
+        }
+        
+        .iphone-screen {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: #f9f9f9;
+            border-radius: 48px; /* Inner screen rounded corners */
+            overflow: hidden; /* Clip content to screen */
+        }
+        
+        /* 顶部状态栏 */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 25px;
+            background-color: transparent;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        
+        .time {
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .status-icons {
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-icons i {
+            margin-left: 8px;
+            font-size: 16px;
+        }
+        
+        /* 返回按钮 */
+        .back-btn {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .back-btn i {
+            font-size: 24px;
+            color: #333;
+        }
+        
+        /* 主体内容 */
+        .app-container {
+            height: 100%;
+            width: 100%;
+            position: relative;
+            overflow-y: auto;
+        }
+        
+        .app-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* 背景图片区域 */
+        .background-image {
+            width: 100%;
+            height: 45%;
+            background: url('https://images.pexels.com/photos/6056804/pexels-photo-6056804.jpeg') no-repeat center;
+            background-size: cover;
+            background-position: center 35%; /* 将图片裁剪到更接近腰部的位置 */
+            position: relative;
+        }
+        
+        .background-image::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 150px;
+            background: linear-gradient(to bottom, rgba(249, 249, 249, 0), rgba(249, 249, 249, 1));
+        }
+        
+        /* 内容区域 */
+        .content {
+            background-color: #f9f9f9;
+            border-radius: 30px 30px 0 0;
+            margin-top: -30px;
+            position: relative;
+            z-index: 1;
+            padding: 0 20px;
+        }
+        
+        /* 消息通知条 */
+        .notification {
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .notification-icon {
+            color: #8BC34A;
+            font-size: 22px;
+            margin-right: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-text {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 2px;
+        }
+        
+        .notification-time {
+            font-size: 14px;
+            color: #999;
+        }
+        
+        /* 研究表明部分 */
+        .research-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            flex: 1;
+            background-color: #f0f9e8;
+            border-radius: 15px;
+            padding: 12px 15px;
+            margin-right: 10px;
+        }
+        
+        .stat-item:last-child {
+            margin-right: 0;
+        }
+        
+        .stat-text {
+            display: flex;
+            align-items: center;
+        }
+        
+        .stat-percentage {
+            color: #8BC34A;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .stat-description {
+            font-size: 16px;
+        }
+        
+        .up-arrow {
+            color: #ff6b6b;
+            margin-left: 5px;
+            font-size: 14px;
+        }
+        
+        /* 会员卡片区域 */
+        .membership-cards {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 25px;
+            margin-top: 25px;
+        }
+        
+        .membership-card {
+            flex: 1;
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 15px 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: relative;
+            border: 2px solid transparent;
+        }
+        
+        .membership-card.selected {
+            border-color: #8BC34A;
+            background-color: #f0f9e8;
+        }
+        
+        .discount-tag {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ff6b6b;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            white-space: nowrap;
+            font-weight: bold;
+        }
+        
+        .membership-title {
+            font-size: 16px;
+            color: #333;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .price {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .price-unit {
+            font-size: 16px;
+            color: #999;
+        }
+        
+        .original-price {
+            color: #999;
+            text-decoration: line-through;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        /* 年卡特别样式 */
+        .yearly-card {
+            transform: scale(1.08);
+            z-index: 1;
+            border: 3px solid #96D82A;
+            background-color: #f0f9e8;
+            position: relative;
+        }
+        
+        .yearly-tag {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ff6b6b;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            white-space: nowrap;
+            font-weight: bold;
+        }
+        
+        .yearly-title {
+            font-size: 18px;
+            color: #333;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .yearly-price {
+            font-size: 36px;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+        
+        .yearly-unit {
+            font-size: 16px;
+            color: #ff6b6b;
+        }
+        
+        .yearly-annual {
+            font-size: 16px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        /* 倒计时 */
+        .countdown {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        
+        .countdown-item {
+            width: 28px;
+            height: 36px;
+            background-color: #ff6b6b;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            margin: 0 2px;
+        }
+        
+        .countdown-separator {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 0 2px;
+            color: #ff6b6b;
+        }
+        
+        /* 会员权益区域 */
+        .benefits-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin: 30px 0 20px;
+            text-align: center;
+        }
+        
+        .benefits-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 0 10px;
+        }
+        
+        .benefit-item {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .benefit-icon {
+            font-size: 24px;
+            color: #8BC34A;
+            margin-bottom: 10px;
+        }
+        
+        .benefit-number {
+            font-size: 30px;
+            font-weight: bold;
+            color: #96D82A;
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+        
+        .benefit-plus {
+            color: #ddd;
+            font-size: 28px;
+            margin: 0 15px;
+        }
+        
+        .benefit-description {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .benefit-detail {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        /* 协议部分 */
+        .agreement {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+        }
+        
+        .agreement-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #ddd;
+            border-radius: 50%;
+            margin-right: 10px;
+            position: relative;
+        }
+        
+        .agreement-text {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .agreement-link {
+            color: #666;
+            text-decoration: none;
+        }
+        
+        /* 价格和购买按钮 */
+        .payment-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            padding-bottom: 30px;
+        }
+        
+        .current-price {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        
+        .original-total {
+            font-size: 16px;
+            color: #999;
+            text-decoration: line-through;
+            margin-left: 10px;
+        }
+        
+        .saving {
+            font-size: 14px;
+            color: #ff6b6b;
+            margin-top: 5px;
+        }
+        
+        .buy-button {
+            background-color: #a4e521;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 18px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(164, 229, 33, 0.3);
+            cursor: pointer;
+        }
+        
+        .buy-button:hover {
+            background-color: #b5f52c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(164, 229, 33, 0.4);
+        }
+        
+        .buy-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(164, 229, 33, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="iphone-frame">
+        <div class="iphone-screen">
+            <!-- 顶部状态栏 -->
+            <div class="status-bar">
+                <div class="time">10:00</div>
+                <div class="status-icons">
+                    <i class="fas fa-signal"></i>
+                    <i class="fas fa-wifi"></i>
+                    <i class="fas fa-battery-three-quarters"></i>
+                </div>
+            </div>
+            
+            <!-- 返回按钮 -->
+            <div class="back-btn">
+                <i class="fas fa-chevron-left"></i>
+            </div>
+            
+            <!-- 主内容区域 -->
+            <div class="app-container">
+                <!-- 背景图片 -->
+                <div class="background-image"></div>
+                
+                <!-- 内容区域 -->
+                <div class="content">
+                    <!-- 消息通知条 -->
+                    <div class="notification">
+                        <i class="fas fa-volume-up notification-icon"></i>
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User Avatar" class="user-avatar">
+                        <div class="notification-content">
+                            <div class="notification-text">Yuto成功购买优惠年卡会员！</div>
+                            <div class="notification-time">19分钟前</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 研究表明部分 -->
+                    <h2 class="research-title">研究表明：坚持使用BodyPark的人群</h2>
+                    <div class="stats-container">
+                        <div class="stat-item">
+                            <div class="stat-text">
+                                <span class="stat-percentage">92%</span>
+                                <span class="stat-description">身材变得更好</span>
+                                <i class="fas fa-arrow-up up-arrow"></i>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-text">
+                                <span class="stat-percentage">76%</span>
+                                <span class="stat-description">轻松甩肉8-12斤</span>
+                                <i class="fas fa-arrow-up up-arrow"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 会员卡片区域 -->
+                    <div class="membership-cards">
+                        <!-- 月卡 -->
+                        <div class="membership-card">
+                            <div class="discount-tag">7.1折 首月专享</div>
+                            <div class="membership-title">连续包月</div>
+                            <div class="price">¥49<span class="price-unit">/月</span></div>
+                            <div class="original-price">¥69/月</div>
+                        </div>
+                        
+                        <!-- 年卡 -->
+                        <div class="membership-card yearly-card">
+                            <div class="yearly-tag">2折 新人专享</div>
+                            <div class="yearly-title">优惠年卡</div>
+                            <div class="yearly-price">¥15<span class="yearly-unit">/月</span></div>
+                            <div class="yearly-annual">¥169/年</div>
+                            
+                            <!-- 倒计时 -->
+                            <div class="countdown">
+                                <div class="countdown-item" id="minutes-tens">0</div>
+                                <div class="countdown-item" id="minutes-ones">4</div>
+                                <div class="countdown-separator">:</div>
+                                <div class="countdown-item" id="seconds-tens">5</div>
+                                <div class="countdown-item" id="seconds-ones">2</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 季卡 -->
+                        <div class="membership-card">
+                            <div class="discount-tag">4.2折 首季专享</div>
+                            <div class="membership-title">连续包季</div>
+                            <div class="price">¥30<span class="price-unit">/月</span></div>
+                            <div class="original-price">¥89/季</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 会员权益部分 -->
+                    <h3 class="benefits-title">年卡会员权益</h3>
+                    <div class="benefits-container">
+                        <div class="benefit-item">
+                            <div class="benefit-number">24<span style="font-size: 18px;">节</span></div>
+                            <div class="benefit-description">真人私教团课</div>
+                            <div class="benefit-detail">每月2节</div>
+                        </div>
+                        
+                        <div class="benefit-plus">+</div>
+                        
+                        <div class="benefit-item">
+                            <div class="benefit-number">18<span style="font-size: 18px;">类</span></div>
+                            <div class="benefit-description">AI督导课</div>
+                            <div class="benefit-detail">1000+课程无限练</div>
+                        </div>
+                        
+                        <div class="benefit-plus">+</div>
+                        
+                        <div class="benefit-item">
+                            <div class="benefit-number">1v1</div>
+                            <div class="benefit-description">量身定制计划</div>
+                            <div class="benefit-detail">训练效果有保障</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 协议部分 -->
+                    <div class="agreement">
+                        <div class="agreement-checkbox"></div>
+                        <div class="agreement-text">
+                            购买前请阅读 
+                            <a href="#" class="agreement-link">《用户协议》</a>
+                            <a href="#" class="agreement-link">《隐私协议》</a>
+                            <a href="#" class="agreement-link">《自动续费协议》</a>
+                        </div>
+                    </div>
+                    
+                    <!-- 价格和购买按钮 -->
+                    <div class="payment-section">
+                        <div class="price-info">
+                            <span class="current-price">¥169</span>
+                            <span class="original-total">¥828</span>
+                            <div class="saving">现在支付立省¥659</div>
+                        </div>
+                        <button class="buy-button">立即购买，随时开练</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

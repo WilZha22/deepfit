@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>赛事详情</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script>
+        // 页面加载完成后设置缩放比例为80%
+        window.onload = function() {
+          document.body.style.zoom = "80%";
+        }
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft Yahei', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .iphone-frame {
+            position: relative;
+            width: 428px; /* iPhone 14 Pro Max width */
+            height: 926px; /* iPhone 14 Pro Max height */
+            background-color: #1c1c1e; /* Dark grey for the phone body */
+            border-radius: 55px; /* Rounded corners for the phone */
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            padding: 5px; /* Small padding for the bezel */
+            margin-top: 20px; /* Space from top */
+            margin-bottom: 20px; /* Space from bottom */
+        }
+
+        .iphone-screen {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: #f0f2f5; /* Screen background, matching the app's light grey */
+            border-radius: 48px; /* Inner screen rounded corners */
+            overflow: hidden; /* Clip content to screen */
+        }
+
+        /* Dynamic Island (灵动岛) instead of notch */
+        .dynamic-island {
+            position: absolute;
+            top: 12px; /* Position from top */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 126px; /* Width of Dynamic Island */
+            height: 37px; /* Height of Dynamic Island */
+            background-color: #000; /* Black color */
+            border-radius: 24px; /* Rounded corners */
+            z-index: 200; /* Above everything else on the screen */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Small indicator light in Dynamic Island */
+        .dynamic-island::after {
+            content: '';
+            position: absolute;
+            right: 28px;
+            width: 8px;
+            height: 8px;
+            background-color: #09c95e; /* Green indicator */
+            border-radius: 50%;
+        }
+
+        .app-container {
+            height: 100%;
+            overflow-y: auto; /* Allow scrolling within the app screen */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Hide scrollbar for a cleaner look */
+        .app-container::-webkit-scrollbar {
+            display: none;
+        }
+        .app-container {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        .app-header-placeholder { /* Placeholder for status bar area */
+            height: 65px; /* Space for Dynamic Island + status bar */
+            width: 100%;
+        }
+        
+        .main-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 80px; /* 减少底部间距，因为没有导航栏了，只需为报名按钮留出空间 */
+        }
+        
+        .main-content::-webkit-scrollbar {
+            display: none;
+        }
+        .main-content {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+        /* Status Bar iOS style */
+        .status-bar {
+            position: absolute;
+            top: 14px;
+            left: 0;
+            right: 0;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #000;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 150;
+        }
+
+        .status-time {
+            position: absolute;
+            left: 32px;
+        }
+
+        .status-indicators {
+            position: absolute;
+            right: 32px;
+            display: flex;
+            align-items: center;
+        }
+
+        .status-cell, .status-wifi, .status-battery {
+            margin-left: 8px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back-btn {
+            font-size: 18px;
+            color: #333;
+            margin-right: 15px;
+            cursor: pointer;
+            width: 40px;
+            text-align: left;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 600;
+            flex-grow: 1;
+            text-align: center;
+            margin-right: 40px; /* 平衡返回按钮的宽度 */
+        }
+
+        /* 赛事封面区域 */
+        .event-cover {
+            width: 100%;
+            height: 250px;
+            background-color: #000;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .event-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .event-header-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: #fff;
+        }
+
+        .event-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+        }
+
+        .event-type {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .event-official {
+            background-color: rgba(255, 149, 0, 0.2);
+            color: #FF9500;
+        }
+
+        .event-partner {
+            background-color: rgba(0, 122, 255, 0.2);
+            color: #007AFF;
+        }
+
+        .event-type-icon {
+            margin-right: 6px;
+        }
+
+        .event-category-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .event-category-tag {
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            background-color: rgba(255,255,255,0.3);
+            color: #fff;
+        }
+
+        /* Tab标签区域 */
+        .event-tabs {
+            display: flex;
+            background-color: #fff;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 58px; /* Header的高度 */
+            z-index: 90;
+        }
+
+        .event-tab {
+            padding: 8px 16px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            border-radius: 20px;
+            margin-right: 12px;
+        }
+
+        .event-tab.active {
+            background-color: #f0f2f5;
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* 赛事内容区 */
+        .event-info-section {
+            background-color: #fff;
+            margin: 15px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .event-info-header {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 17px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .event-info-content {
+            padding: 15px;
+        }
+
+        .event-detail {
+            display: flex;
+            margin-bottom: 15px;
+            font-size: 15px;
+            color: #333;
+            align-items: flex-start;
+        }
+
+        .event-detail:last-child {
+            margin-bottom: 0;
+        }
+
+        .event-detail i {
+            width: 20px;
+            margin-right: 10px;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .event-detail-content {
+            flex: 1;
+        }
+
+        /* 赛事介绍区域 */
+        .event-description {
+            line-height: 1.6;
+            color: #444;
+            font-size: 15px;
+        }
+
+        .event-description p {
+            margin: 0 0 10px 0;
+        }
+
+        /* 相关信息 */
+        .event-info-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .event-info-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+        }
+
+        .event-info-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .event-info-item i {
+            width: 20px;
+            margin-right: 10px;
+            color: #666;
+        }
+
+        /* 报名按钮容器 - 修改定位方式 */
+        .register-btn-container {
+            position: absolute; /* 改为absolute而不是fixed，相对于父容器定位 */
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 0;
+            background-color: #fff;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 0 0 48px 48px; /* 适配iPhone屏幕底部圆角 */
+        }
+
+        /* 报名按钮 */
+        .register-btn {
+            width: 80%;
+            padding: 14px 0;
+            border-radius: 25px;
+            background: linear-gradient(to right, #ff8c00, #ff6347);
+            color: #fff;
+            font-size: 17px;
+            font-weight: 500;
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 99, 71, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .register-btn i {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        .register-btn:hover {
+            background: linear-gradient(to right, #ff7b00, #ff5233);
+            box-shadow: 0 6px 18px rgba(255, 99, 71, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .register-btn:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+    <div class="iphone-frame">
+        <div class="iphone-screen">
+            <!-- Dynamic Island -->
+            <div class="dynamic-island"></div>
+            
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-time">10:12</div>
+                <div class="status-indicators">
+                    <div class="status-cell">
+                        <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 0H2C0.9 0 0 0.9 0 2V10C0 11.1 0.9 12 2 12H16C17.1 12 18 11.1 18 10V2C18 0.9 17.1 0 16 0ZM11 10H2V2H11V10ZM16 10H12V2H16V10Z" fill="black"/>
+                        </svg>
+                    </div>
+                    <div class="status-wifi">
+                        <svg width="15" height="11" viewBox="0 0 15 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7.5 10.5C8.328 10.5 9 9.828 9 9C9 8.172 8.328 7.5 7.5 7.5C6.672 7.5 6 8.172 6 9C6 9.828 6.672 10.5 7.5 10.5Z" fill="black"/>
+                            <path d="M0 3C2.076 1.107 4.674 0 7.5 0C10.326 0 12.924 1.107 15 3L13.326 4.674C11.682 3.15 9.684 2.25 7.5 2.25C5.316 2.25 3.318 3.15 1.674 4.674L0 3Z" fill="black"/>
+                            <path d="M3 6C4.167 4.917 5.75 4.25 7.5 4.25C9.25 4.25 10.833 4.917 12 6L10.5 7.5C9.75 6.833 8.667 6.5 7.5 6.5C6.333 6.5 5.25 6.833 4.5 7.5L3 6Z" fill="black"/>
+                        </svg>
+                    </div>
+                    <div class="status-battery">
+                        <svg width="25" height="12" viewBox="0 0 25 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="black"/>
+                            <rect x="2" y="2" width="18" height="8" rx="1.5" fill="black"/>
+                            <path d="M23 4V8C23.8 7.66667 24.3333 7 24.5 6C24.3333 5 23.8 4.33333 23 4Z" fill="black"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="app-container">
+                <div class="app-header-placeholder"></div>
+
+                <!-- App Content Starts Here -->
+                <div class="main-content">
+                    <!-- Header 带返回按钮 -->
+                    <div class="header">
+                        <div class="back-btn" onclick="window.location.href='events.html'">
+                            <i class="fas fa-chevron-left"></i>
+                        </div>
+                        <div class="page-title">赛事详情</div>
+                    </div>
+
+                    <!-- 赛事封面区域 -->
+                    <div class="event-cover">
+                        <img src="../images/event1.png" alt="赛事封面图">
+                        <div class="event-header-overlay">
+                            <h1 class="event-title">2023全国健身锦标赛</h1>
+                            <div class="event-type event-official">
+                                <i class="fas fa-certificate event-type-icon"></i> 官方赛事
+                            </div>
+                            <div class="event-category-tags">
+                                <span class="event-category-tag">健美</span>
+                                <span class="event-category-tag">健体</span>
+                                <span class="event-category-tag">全国性赛事</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab标签区域 -->
+                    <div class="event-tabs">
+                        <div class="event-tab active" data-content="info">赛事信息</div>
+                        <div class="event-tab" data-content="schedule">赛程安排</div>
+                        <div class="event-tab" data-content="rules">比赛规则</div>
+                    </div>
+
+                    <!-- 赛事信息内容区 -->
+                    <div class="event-content" id="info-content">
+                        <!-- 基本信息卡片 -->
+                        <div class="event-info-section">
+                            <div class="event-info-header">
+                                基本信息
+                            </div>
+                            <div class="event-info-content">
+                                <div class="event-detail">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <div class="event-detail-content">
+                                        <strong>比赛时间</strong><br>
+                                        2023年8月15日 - 2023年8月20日
+                                    </div>
+                                </div>
+                                <div class="event-detail">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <div class="event-detail-content">
+                                        <strong>比赛地点</strong><br>
+                                        北京市 国家体育馆
+                                    </div>
+                                </div>
+                                <div class="event-detail">
+                                    <i class="fas fa-user-tie"></i>
+                                    <div class="event-detail-content">
+                                        <strong>主办方</strong><br>
+                                        中国健美协会
+                                    </div>
+                                </div>
+                                <div class="event-detail">
+                                    <i class="fas fa-users"></i>
+                                    <div class="event-detail-content">
+                                        <strong>参赛人数</strong><br>
+                                        预计1000+选手
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 赛事介绍卡片 -->
+                        <div class="event-info-section">
+                            <div class="event-info-header">
+                                赛事介绍
+                            </div>
+                            <div class="event-info-content">
+                                <div class="event-description">
+                                    <p>2023全国健身锦标赛是中国健美协会主办的最具影响力的全国性健美健身赛事之一，每年吸引众多优秀选手参与。赛事将设立多个不同体重级别和年龄组别的比赛项目，包括男子健美、女子形体、男女健体、比基尼等类别。</p>
+                                    
+                                    <p>本届锦标赛将是2024年亚洲健美锦标赛的重要选拔赛，冠军选手将有机会代表国家参加国际赛事。大赛将邀请国内外顶级评委，确保比赛公平公正。</p>
+                                    
+                                    <p>除了激烈的比赛，赛事期间还将举办健身产业博览会、明星运动员见面会以及健美健身专业讲座等丰富活动，为广大健身爱好者提供学习交流的平台。</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 报名须知卡片 -->
+                        <div class="event-info-section">
+                            <div class="event-info-header">
+                                报名须知
+                            </div>
+                            <div class="event-info-content">
+                                <ul class="event-info-list">
+                                    <li class="event-info-item">
+                                        <i class="fas fa-calendar-check"></i>
+                                        <span>报名截止日期：2023年7月30日</span>
+                                    </li>
+                                    <li class="event-info-item">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                        <span>报名费用：¥500/人</span>
+                                    </li>
+                                    <li class="event-info-item">
+                                        <i class="fas fa-clipboard-list"></i>
+                                        <span>需提供有效身份证件</span>
+                                    </li>
+                                    <li class="event-info-item">
+                                        <i class="fas fa-file-medical"></i>
+                                        <span>需提供体检证明</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- App Content Ends Here -->
+
+                <!-- 底部固定报名按钮 -->
+                <div class="register-btn-container">
+                    <button class="register-btn">
+                        <i class="fas fa-clipboard-check"></i>立即报名
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.event-tab');
+            
+            // 目前只实现了信息标签的内容，其他标签默认隐藏
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有标签的active类
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // 给当前点击的标签添加active类
+                    this.classList.add('active');
+                    
+                    // 获取标签对应的内容ID
+                    const contentId = this.getAttribute('data-content');
+                    
+                    // 在实际应用中，这里应该显示对应的内容块
+                    // 当前示例只有"赛事信息"内容
+                    if (contentId !== 'info') {
+                        alert('该功能正在开发中...');
+                        // 切换回信息标签
+                        tabs.forEach(t => {
+                            if (t.getAttribute('data-content') === 'info') {
+                                t.classList.add('active');
+                            } else {
+                                t.classList.remove('active');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
