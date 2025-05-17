@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KeepFit图片资源检查</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .image-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .image-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .image-card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .image-preview {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .image-path {
+            font-family: monospace;
+            background-color: #f5f5f5;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            word-break: break-all;
+        }
+        .image-status {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .success {
+            color: #4CAF50;
+        }
+        .error {
+            color: #F44336;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #8BC34A;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>KeepFit图片资源检查</h1>
+    
+    <a href="/prototype/index.html" class="button">返回首页</a>
+    
+    <h2>本地图片资源</h2>
+    <div class="image-container" id="local-images">
+        <!-- 本地图片会在此动态显示 -->
+    </div>
+    
+    <h2>外部图片资源</h2>
+    <div class="image-container" id="external-images">
+        <!-- 外部图片会在此动态显示 -->
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const localImagesContainer = document.getElementById('local-images');
+            const externalImagesContainer = document.getElementById('external-images');
+            
+            // 本地图片路径
+            const localImages = [
+                { name: '健身背景图', path: '/images/fitness-background.jpg' },
+                { name: '用户头像', path: '/images/user-avatar.jpg' },
+                { name: 'DeepFit图标', path: '/images/deepfit.png' },
+                { name: '教练女孩', path: '/images/coachgirl.png' },
+                { name: '赛事1', path: '/images/event1.png' },
+                { name: '赛事2', path: '/images/event2.png' },
+                { name: '赛事3', path: '/images/event3.png' },
+                { name: '场馆1', path: '/images/place1.png' },
+                { name: '场馆2', path: '/images/place2.png' },
+                { name: '场馆3', path: '/images/place3.png' },
+                { name: '教练1', path: '/images/coach1.png' },
+                { name: '教练2', path: '/images/coach2.png' },
+                { name: '团队1', path: '/images/team1.png' },
+                { name: 'DeepFit Logo 1', path: '/images/deepfitlogo.png' },
+                { name: 'DeepFit Logo 2', path: '/images/deepfitlogo2.png' },
+                { name: '二维码', path: '/images/qrcode.png' }
+            ];
+            
+            // 外部图片路径
+            const externalImages = [
+                { name: 'Pexels健身图片', path: 'https://images.pexels.com/photos/6056804/pexels-photo-6056804.jpeg' },
+                { name: 'Randomuser头像', path: 'https://randomuser.me/api/portraits/women/44.jpg' },
+                { name: 'Unsplash健身图1', path: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f' },
+                { name: 'Unsplash健身图2', path: 'https://images.unsplash.com/photo-1570829460005-c840387bb1ca' },
+                { name: 'Unsplash健身图3', path: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b' },
+                { name: 'Cloudinary图片', path: 'https://res.cloudinary.com/dywsdrgom/image/upload/v1/samples/people/fitness-woman' }
+            ];
+            
+            // 渲染本地图片
+            localImages.forEach(image => {
+                createImageCard(image, localImagesContainer);
+            });
+            
+            // 渲染外部图片
+            externalImages.forEach(image => {
+                createImageCard(image, externalImagesContainer);
+            });
+            
+            // 创建图片卡片函数
+            function createImageCard(image, container) {
+                const card = document.createElement('div');
+                card.className = 'image-card';
+                
+                const title = document.createElement('h3');
+                title.textContent = image.name;
+                card.appendChild(title);
+                
+                const img = document.createElement('img');
+                img.className = 'image-preview';
+                img.src = image.path;
+                img.alt = image.name;
+                
+                const imgPath = document.createElement('div');
+                imgPath.className = 'image-path';
+                imgPath.textContent = image.path;
+                
+                const status = document.createElement('div');
+                status.className = 'image-status';
+                
+                // 检查图片是否能加载
+                img.onload = function() {
+                    status.textContent = '✓ 图片加载成功';
+                    status.classList.add('success');
+                };
+                img.onerror = function() {
+                    status.textContent = '✗ 图片加载失败';
+                    status.classList.add('error');
+                    img.src = '/images/placeholder.png'; // 替换为默认图片
+                };
+                
+                card.appendChild(img);
+                card.appendChild(imgPath);
+                card.appendChild(status);
+                
+                container.appendChild(card);
+            }
+        });
+    </script>
+</body>
+</html> 
