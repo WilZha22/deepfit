@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>课程详情</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script>
+    window.onload = function() {
+      document.body.style.zoom = "80%";
+      
+      // 获取URL参数中的课程ID
+      const urlParams = new URLSearchParams(window.location.search);
+      const courseId = urlParams.get('id');
+      
+      // 根据ID加载不同课程数据
+      loadCourseData(courseId);
+      
+      // 初始化默认语言（中文）
+      updatePageLanguage('zh');
+      
+      // 获取系统语言或URL参数设置的语言
+      checkSystemLanguage();
+    }
+    
+    // 检查系统语言设置或URL参数
+    function checkSystemLanguage() {
+      // 尝试从URL参数获取语言设置
+      const urlParams = new URLSearchParams(window.location.search);
+      const langParam = urlParams.get('lang');
+      
+      // 尝试从localStorage获取全局语言设置
+      const storedLang = localStorage.getItem('app_language');
+      
+      // 按优先级使用语言设置：URL参数 > localStorage > 默认中文
+      if (langParam && translations[langParam]) {
+        updatePageLanguage(langParam);
+      } else if (storedLang && translations[storedLang]) {
+        updatePageLanguage(storedLang);
+      }
+    }
+    
+    // 加载课程数据
+    function loadCourseData(id) {
+      // 实际项目中应从API获取数据
+      // 这里只做简单展示
+      document.getElementById('course-id').innerText = id;
+      
+      // 课程数据示例
+      const courseData = {
+        '1': {
+          title: '【热门】减脂塑形提高代谢',
+          originalPrice: 99,
+          salePrice: 39.9,
+          discount: 4.0,
+          soldCount: 1289,
+          coverImage: './images/course1.png',
+          form: '1v1',
+          sessions: 1,
+          validity: 30,
+          duration: 50,
+          description: '这是一门专业的减脂塑形课程，通过科学的训练方法提高新陈代谢，帮助学员在短时间内达到减脂塑形的效果。本课程由专业教练指导，适合各年龄段人群。'
+        },
+        '2': {
+          title: '【人气】力量训练增肌课',
+          originalPrice: 129,
+          salePrice: 49.9,
+          discount: 3.9,
+          soldCount: 896,
+          coverImage: './images/course2.png',
+          form: '1v1',
+          sessions: 1,
+          validity: 30,
+          duration: 60,
+          description: '专业力量训练课程，帮助学员科学增肌，提升肌肉力量和耐力。课程包含专业的器械使用指导和训练计划制定，适合想要增肌的各级学员。'
+        },
+        '3': {
+          title: '【新人专享】单人体验课',
+          originalPrice: 128,
+          salePrice: 9.9,
+          discount: 0.8,
+          soldCount: 3542,
+          coverImage: './images/course3.png',
+          form: '1v1',
+          sessions: 1,
+          validity: 15,
+          duration: 45,
+          description: '专为新人设计的体验课程，内容涵盖基础健身知识和技巧。由专业教练一对一指导，帮助您了解自身状况，制定适合的健身计划。'
+        }
+      };
+      
+      // 获取课程数据
+      const course = courseData[id] || {
+        title: '课程详情',
+        originalPrice: 100,
+        salePrice: 50,
+        discount: 5.0,
+        soldCount: 100,
+        coverImage: './images/placeholder.png',
+        form: '团课',
+        sessions: 1,
+        validity: 30,
+        duration: 60,
+        description: '课程详情描述'
+      };
+      
+      // 更新页面数据
+      document.getElementById('course-title').innerText = course.title;
+      document.getElementById('original-price').innerText = '¥' + course.originalPrice;
+      document.getElementById('sale-price').innerText = '¥' + course.salePrice;
+      document.getElementById('discount').innerText = course.discount + '折';
+      document.getElementById('sold-count').innerText = course.soldCount;
+      document.getElementById('course-image').src = course.coverImage;
+      document.getElementById('course-form').innerText = course.form;
+      document.getElementById('course-sessions').innerText = course.sessions;
+      document.getElementById('course-validity').innerText = course.validity;
+      document.getElementById('course-duration').innerText = course.duration;
+      document.getElementById('course-description').innerText = course.description;
+      
+      // 更新文档标题
+      document.title = course.title;
+    }
+    
+    // 图片加载错误处理
+    function handleImageError(img) {
+      img.onerror = null;
+      img.src = './images/placeholder.png';
+    }
+    
+    // 收藏功能
+    function toggleFavorite() {
+      const favoriteBtn = document.querySelector('.favorite-btn');
+      favoriteBtn.classList.toggle('active');
+      
+      if (favoriteBtn.classList.contains('active')) {
+        alert(translations[currentLang].favoriteAdded);
+      } else {
+        alert(translations[currentLang].favoriteRemoved);
+      }
+    }
+    
+    // 分享功能
+    function shareCourse() {
+      alert(translations[currentLang].shareActivated);
+    }
+    
+    // 立即购买
+    function buyNow() {
+      alert(translations[currentLang].purchaseStarted);
+    }
+    
+    // 多语言翻译对象
+    const translations = {
+      zh: {
+        courseDetail: "课程详情",
+        back: "返回",
+        originalPrice: "原价",
+        flashSale: "秒杀价",
+        discount: "折",
+        sold: "已售",
+        notice: "须知",
+        guarantee: "保障",
+        refundIn30Days: "30天可退",
+        courseInfo: "课程详情",
+        classForm: "上课形式",
+        oneOnOne: "1v1",
+        groupClass: "团课",
+        sessions: "课程数",
+        session: "节",
+        validity: "课程有效期",
+        days: "天",
+        duration: "课程时长",
+        minutes: "分钟",
+        description: "图文介绍",
+        purchaseNotice: "购买须知",
+        validityPeriod: "有效期",
+        useTime: "使用时间：购买后30天内有效",
+        reservationTime: "预约时间：预约成功后不可更改时间",
+        applicablePeople: "适用人数：仅限一人使用，不可转让",
+        rules: "规则提醒：请提前24小时预约，如需取消请至少提前12小时",
+        favorite: "收藏",
+        share: "分享",
+        buyNow: "立即购买",
+        favoriteAdded: "已收藏",
+        favoriteRemoved: "已取消收藏",
+        shareActivated: "分享功能已激活",
+        purchaseStarted: "即将开始购买流程"
+      },
+      en: {
+        courseDetail: "Course Detail",
+        back: "Back",
+        originalPrice: "Original",
+        flashSale: "Sale",
+        discount: "OFF",
+        sold: "Sold",
+        notice: "Notice",
+        guarantee: "Guarantee",
+        refundIn30Days: "30-day Refund",
+        courseInfo: "Course Info",
+        classForm: "Class Form",
+        oneOnOne: "1-on-1",
+        groupClass: "Group",
+        sessions: "Sessions",
+        session: "",
+        validity: "Validity",
+        days: "days",
+        duration: "Duration",
+        minutes: "min",
+        description: "Description",
+        purchaseNotice: "Purchase Notice",
+        validityPeriod: "Validity Period",
+        useTime: "Use Time: Valid for 30 days after purchase",
+        reservationTime: "Reservation: Cannot be changed after confirmed",
+        applicablePeople: "Applicable: For one person only, non-transferable",
+        rules: "Rules: Please book 24h in advance, cancel at least 12h before",
+        favorite: "Favorite",
+        share: "Share",
+        buyNow: "Buy Now",
+        favoriteAdded: "Added to favorites",
+        favoriteRemoved: "Removed from favorites",
+        shareActivated: "Share function activated",
+        purchaseStarted: "Starting purchase process"
+      },
+      ko: {
+        courseDetail: "강좌 상세",
+        back: "돌아가기",
+        originalPrice: "원가",
+        flashSale: "할인가",
+        discount: "할인",
+        sold: "판매",
+        notice: "안내",
+        guarantee: "보장",
+        refundIn30Days: "30일 환불 가능",
+        courseInfo: "강좌 정보",
+        classForm: "수업 형태",
+        oneOnOne: "1대1",
+        groupClass: "그룹",
+        sessions: "수업 횟수",
+        session: "회",
+        validity: "유효 기간",
+        days: "일",
+        duration: "수업 시간",
+        minutes: "분",
+        description: "상세 설명",
+        purchaseNotice: "구매 안내",
+        validityPeriod: "유효 기간",
+        useTime: "사용 시간: 구매 후 30일 이내",
+        reservationTime: "예약 시간: 확정 후 변경 불가",
+        applicablePeople: "적용 인원: 1인용, 양도 불가",
+        rules: "규칙 안내: 24시간 전 예약, 취소는 12시간 전까지",
+        favorite: "찜하기",
+        share: "공유",
+        buyNow: "지금 구매",
+        favoriteAdded: "찜 목록에 추가됨",
+        favoriteRemoved: "찜 목록에서 제거됨",
+        shareActivated: "공유 기능 활성화",
+        purchaseStarted: "구매 과정 시작"
+      }
+    };
+    
+    // 当前语言
+    let currentLang = 'zh';
+    
+    // 更新页面中所有需要翻译的元素内容
+    function updatePageLanguage(lang) {
+      currentLang = lang;
+      
+      // 更新页面标题
+      document.querySelector('.page-title').textContent = translations[lang].courseDetail;
+      
+      // 更新价格标签
+      document.querySelector('.original-price-label').textContent = translations[lang].originalPrice;
+      document.querySelector('.flash-sale-label').textContent = translations[lang].flashSale;
+      
+      // 更新售出文本
+      document.querySelector('.sold-count-text').textContent = translations[lang].sold + '：';
+      document.querySelector('.sold-count-unit').textContent = '';
+      
+      // 更新须知和保障
+      document.querySelector('.guarantee-text span').textContent = translations[lang].refundIn30Days;
+      
+      // 更新课程详情
+      document.querySelector('.course-info-title').textContent = translations[lang].courseInfo;
+      document.querySelector('.class-form-label').textContent = translations[lang].classForm;
+      document.querySelector('.sessions-label').textContent = translations[lang].sessions;
+      document.querySelector('.sessions-unit').textContent = translations[lang].session;
+      document.querySelector('.validity-label').textContent = translations[lang].validity;
+      document.querySelector('.validity-unit').textContent = translations[lang].days;
+      document.querySelector('.duration-label').textContent = translations[lang].duration;
+      document.querySelector('.duration-unit').textContent = translations[lang].minutes;
+      document.querySelector('.description-title').textContent = translations[lang].description;
+      
+      // 更新购买须知
+      document.querySelector('.purchase-notice-title').textContent = translations[lang].purchaseNotice;
+      document.querySelector('.validity-period-title').textContent = translations[lang].validityPeriod;
+      document.querySelector('.use-time').textContent = translations[lang].useTime;
+      document.querySelector('.reservation-time').textContent = translations[lang].reservationTime;
+      document.querySelector('.applicable-people').textContent = translations[lang].applicablePeople;
+      document.querySelector('.rules').textContent = translations[lang].rules;
+      
+      // 更新底部按钮
+      document.querySelector('.favorite-btn span').textContent = translations[lang].favorite;
+      document.querySelector('.share-btn span').textContent = translations[lang].share;
+      document.querySelector('.buy-now-btn').textContent = translations[lang].buyNow;
+    }
+    
+    // 切换语言
+    function switchLang(langCode) {
+      updatePageLanguage(langCode);
+    }
+  </script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f0f2f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft Yahei', sans-serif;
+    }
+
+    .iphone-frame {
+      position: relative;
+      width: 428px;
+      height: 926px;
+      background-color: #1c1c1e;
+      border-radius: 55px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      padding: 5px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .iphone-screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-color: #f0f2f5;
+      border-radius: 48px;
+      overflow: hidden;
+    }
+
+    /* Dynamic Island (灵动岛) */
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 37px;
+      background-color: #000;
+      border-radius: 24px;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Small indicator light in Dynamic Island */
+    .dynamic-island::after {
+      content: '';
+      position: absolute;
+      right: 28px;
+      width: 8px;
+      height: 8px;
+      background-color: #09c95e;
+      border-radius: 50%;
+    }
+
+    .app-container {
+      height: 100%;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Hide scrollbar for a cleaner look */
+    .app-container::-webkit-scrollbar {
+      display: none;
+    }
+    .app-container {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .app-header-placeholder {
+      height: 65px;
+      width: 100%;
+    }
+    
+    .main-content {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding-bottom: 80px; /* 为底部按钮留出空间 */
+    }
+    
+    .main-content::-webkit-scrollbar {
+      display: none;
+    }
+    .main-content {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Status Bar iOS style */
+    .status-bar {
+      position: absolute;
+      top: 14px;
+      left: 0;
+      right: 0;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #000;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 150;
+    }
+
+    .status-time {
+      position: absolute;
+      left: 32px;
+    }
+
+    .status-indicators {
+      position: absolute;
+      right: 32px;
+      display: flex;
+      align-items: center;
+    }
+
+    .status-cell, .status-wifi, .status-battery {
+      margin-left: 8px;
+    }
+
+    /* 页面标题区域 */
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 25px 20px 15px 20px;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      position: relative;
+    }
+
+    .back-btn {
+      font-size: 18px;
+      width: 40px;
+      color: #333;
+      position: absolute;
+      left: 20px;
+      z-index: 2;
+    }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 600;
+      text-align: center;
+      width: 100%;
+      position: absolute;
+      left: 0;
+    }
+
+    /* 课程封面 */
+    .course-cover {
+      width: 100%;
+      height: 250px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .course-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* 课程价格区域 */
+    .price-section {
+      padding: 15px;
+      background-color: #fff;
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .price-info {
+      flex: 1;
+    }
+
+    .flash-sale-price {
+      display: flex;
+      align-items: baseline;
+      margin-bottom: 5px;
+    }
+
+    .flash-sale-tag {
+      display: inline-block;
+      background-color: #ff3b30;
+      color: white;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-right: 8px;
+      font-weight: bold;
+    }
+
+    .flash-sale-label {
+      font-size: 14px;
+      color: #666;
+      margin-right: 5px;
+    }
+
+    .price-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #ff3b30;
+    }
+
+    .original-price {
+      display: flex;
+      align-items: center;
+    }
+
+    .original-price-label {
+      font-size: 12px;
+      color: #999;
+      margin-right: 5px;
+    }
+
+    .original-price-value {
+      font-size: 14px;
+      color: #999;
+      text-decoration: line-through;
+      margin-right: 8px;
+    }
+
+    .discount-tag {
+      display: inline-block;
+      background-color: #ff9500;
+      color: white;
+      font-size: 12px;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    /* 课程标题和销量 */
+    .title-section {
+      padding: 15px;
+      background-color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .course-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .sold-count {
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* 须知和保障区域 */
+    .notice-section {
+      padding: 15px;
+      background-color: #fff;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .notice-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .notice-title, .guarantee-title {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .guarantee-text {
+      font-size: 14px;
+      color: #ff6b00;
+      display: flex;
+      align-items: center;
+    }
+
+    .guarantee-text i {
+      margin-right: 5px;
+    }
+
+    /* 课程详情区域 */
+    .course-info-section {
+      padding: 15px;
+      background-color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .course-info-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 15px;
+      position: relative;
+      padding-left: 10px;
+    }
+
+    .course-info-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background-color: #ff6b00;
+      border-radius: 3px;
+    }
+
+    .course-attributes {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+
+    .attribute-item {
+      width: 50%;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .attribute-label {
+      font-size: 14px;
+      color: #666;
+      margin-right: 5px;
+    }
+
+    .attribute-value {
+      font-size: 14px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .description-title {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    .course-description {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    /* 购买须知区域 */
+    .purchase-notice-section {
+      padding: 15px;
+      background-color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .purchase-notice-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 15px;
+      position: relative;
+      padding-left: 10px;
+    }
+
+    .purchase-notice-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background-color: #ff6b00;
+      border-radius: 3px;
+    }
+
+    .validity-period-title {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    .validity-items p {
+      font-size: 14px;
+      color: #666;
+      margin: 5px 0;
+      line-height: 1.5;
+      position: relative;
+      padding-left: 15px;
+    }
+
+    .validity-items p::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: #ff6b00;
+    }
+
+    /* 底部按钮区 */
+    .bottom-actions {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      background-color: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 15px;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+      z-index: 100;
+      border-radius: 0 0 48px 48px;
+    }
+
+    .action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 15px;
+      height: 100%;
+      color: #666;
+    }
+
+    .action-btn i {
+      font-size: 20px;
+      margin-bottom: 5px;
+    }
+
+    .action-btn span {
+      font-size: 12px;
+    }
+
+    .favorite-btn.active i {
+      color: #ff3b30;
+    }
+
+    .buy-now-btn {
+      flex: 1;
+      background: linear-gradient(to right, #ff6b00, #ff9500);
+      color: #fff;
+      border: none;
+      height: 50px;
+      border-radius: 25px;
+      margin-left: 15px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-frame">
+    <div class="iphone-screen">
+      <!-- Dynamic Island replaces the notch -->
+      <div class="dynamic-island"></div>
+      
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <div class="status-time">10:12</div>
+        <div class="status-indicators">
+          <div class="status-cell">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 0H2C0.9 0 0 0.9 0 2V10C0 11.1 0.9 12 2 12H16C17.1 12 18 11.1 18 10V2C18 0.9 17.1 0 16 0ZM11 10H2V2H11V10ZM16 10H12V2H16V10Z" fill="black"/>
+            </svg>
+          </div>
+          <div class="status-wifi">
+            <svg width="15" height="11" viewBox="0 0 15 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7.5 10.5C8.328 10.5 9 9.828 9 9C9 8.172 8.328 7.5 7.5 7.5C6.672 7.5 6 8.172 6 9C6 9.828 6.672 10.5 7.5 10.5Z" fill="black"/>
+              <path d="M0 3C2.076 1.107 4.674 0 7.5 0C10.326 0 12.924 1.107 15 3L13.326 4.674C11.682 3.15 9.684 2.25 7.5 2.25C5.316 2.25 3.318 3.15 1.674 4.674L0 3Z" fill="black"/>
+              <path d="M3 6C4.167 4.917 5.75 4.25 7.5 4.25C9.25 4.25 10.833 4.917 12 6L10.5 7.5C9.75 6.833 8.667 6.5 7.5 6.5C6.333 6.5 5.25 6.833 4.5 7.5L3 6Z" fill="black"/>
+            </svg>
+          </div>
+          <div class="status-battery">
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="black"/>
+              <rect x="2" y="2" width="18" height="8" rx="1.5" fill="black"/>
+              <path d="M23 4V8C23.8 7.66667 24.3333 7 24.5 6C24.3333 5 23.8 4.33333 23 4Z" fill="black"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <div class="app-container">
+        <!-- App header placeholder replaces old status bar -->
+        <div class="app-header-placeholder"></div>
+        
+        <!-- 页面标题区域 -->
+        <div class="header">
+          <a href="javascript:history.back()" class="back-btn">
+            <i class="fas fa-chevron-left"></i>
+          </a>
+          <div class="page-title">课程详情</div>
+        </div>
+        
+        <!-- 主要内容区域 -->
+        <div class="main-content">
+          <!-- 课程封面 -->
+          <div class="course-cover">
+            <img id="course-image" src="./images/course1.png" alt="课程封面" class="course-image" onerror="handleImageError(this)">
+          </div>
+          
+          <!-- 课程价格区域 -->
+          <div class="price-section">
+            <div class="price-info">
+              <div class="flash-sale-price">
+                <span class="flash-sale-tag">秒杀</span>
+                <span class="flash-sale-label">秒杀价</span>
+                <span id="sale-price" class="price-value">¥39.9</span>
+              </div>
+              <div class="original-price">
+                <span class="original-price-label">原价</span>
+                <span id="original-price" class="original-price-value">¥99</span>
+                <span id="discount" class="discount-tag">4.0折</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 课程标题和销量 -->
+          <div class="title-section">
+            <h1 id="course-title" class="course-title">【热门】减脂塑形提高代谢</h1>
+            <div class="sold-count">
+              <span class="sold-count-text">已售：</span>
+              <span id="sold-count">1289</span>
+            </div>
+          </div>
+          
+          <!-- 须知和保障区域 -->
+          
+          
+          <!-- 课程详情区域 -->
+          <div class="course-info-section">
+            <h2 class="course-info-title">课程详情</h2>
+            <div class="course-attributes">
+              <div class="attribute-item">
+                <span class="attribute-label class-form-label">上课形式</span>
+                <span id="course-form" class="attribute-value">1v1</span>
+              </div>
+              <div class="attribute-item">
+                <span class="attribute-label sessions-label">课程数</span>
+                <span id="course-sessions" class="attribute-value">1</span>
+                <span class="sessions-unit">节</span>
+              </div>
+              <div class="attribute-item">
+                <span class="attribute-label validity-label">课程有效期</span>
+                <span id="course-validity" class="attribute-value">30</span>
+                <span class="validity-unit">天</span>
+              </div>
+              <div class="attribute-item">
+                <span class="attribute-label duration-label">课程时长</span>
+                <span id="course-duration" class="attribute-value">50</span>
+                <span class="duration-unit">分钟</span>
+              </div>
+            </div>
+            <div>
+              <h3 class="description-title">图文介绍</h3>
+              <p id="course-description" class="course-description">
+                这是一门专业的减脂塑形课程，通过科学的训练方法提高新陈代谢，帮助学员在短时间内达到减脂塑形的效果。本课程由专业教练指导，适合各年龄段人群。
+              </p>
+            </div>
+          </div>
+          
+          <!-- 购买须知区域 -->
+          <div class="purchase-notice-section">
+            <h2 class="purchase-notice-title">购买须知</h2>
+            <h3 class="validity-period-title">有效期</h3>
+            <div class="validity-items">
+              <p class="use-time">使用时间：购买后30天内有效</p>
+              <p class="reservation-time">预约时间：预约成功后不可更改时间</p>
+              <p class="applicable-people">适用人数：仅限一人使用，不可转让</p>
+              <p class="rules">规则提醒：请提前24小时预约，如需取消请至少提前12小时</p>
+            </div>
+          </div>
+          
+          <!-- 课程ID（隐藏） -->
+          <span id="course-id" style="display: none;"></span>
+        </div>
+        
+        <!-- 底部固定按钮 -->
+        <div class="bottom-actions">
+          <div class="action-btn favorite-btn" onclick="toggleFavorite()">
+            <i class="far fa-heart"></i>
+            <span>收藏</span>
+          </div>
+          <div class="action-btn share-btn" onclick="shareCourse()">
+            <i class="fas fa-share-alt"></i>
+            <span>分享</span>
+          </div>
+          <button class="buy-now-btn" onclick="buyNow()">立即购买</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html> 

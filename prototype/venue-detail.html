@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>场馆详情</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script>
+    window.onload = function() {
+      document.body.style.zoom = "80%";
+      
+      // 获取URL参数中的场馆ID
+      const urlParams = new URLSearchParams(window.location.search);
+      const venueId = urlParams.get('id');
+      
+      // 根据ID加载不同场馆数据（这里简化为直接切换显示内容）
+      loadVenueData(venueId);
+      
+      // 初始化轮播图
+      initCarousel();
+    }
+    
+    // 加载场馆数据
+    function loadVenueData(id) {
+      // 实际项目中应从API获取数据
+      // 这里只做简单展示
+      document.getElementById('venue-id').innerText = id;
+    }
+    
+    // 图片加载错误处理
+    function handleImageError(img) {
+      img.onerror = null;
+      img.src = './images/placeholder.png';
+    }
+    
+    // 初始化轮播图
+    function initCarousel() {
+      let currentSlide = 0;
+      const slides = document.querySelectorAll('.carousel-slide');
+      const dots = document.querySelectorAll('.carousel-dot');
+      
+      // 定时切换
+      setInterval(() => {
+        currentSlide = (currentSlide + 1) % slides.length;
+        updateCarousel();
+      }, 5000);
+      
+      // 切换到指定图片
+      document.querySelectorAll('.carousel-dot').forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+          currentSlide = index;
+          updateCarousel();
+        });
+      });
+      
+      // 更新轮播图状态
+      function updateCarousel() {
+        slides.forEach((slide, index) => {
+          slide.style.transform = `translateX(${(index - currentSlide) * 100}%)`;
+        });
+        
+        dots.forEach((dot, index) => {
+          if (index === currentSlide) {
+            dot.classList.add('active');
+          } else {
+            dot.classList.remove('active');
+          }
+        });
+      }
+      
+      // 初始化
+      updateCarousel();
+    }
+    
+    // 收藏功能
+    function toggleFavorite() {
+      const favoriteBtn = document.querySelector('.favorite-btn');
+      favoriteBtn.classList.toggle('active');
+      
+      if (favoriteBtn.classList.contains('active')) {
+        alert('已收藏');
+      } else {
+        alert('已取消收藏');
+      }
+    }
+    
+    // 分享功能
+    function shareVenue() {
+      alert('分享功能已激活');
+    }
+    
+    // 显示教练详情弹窗
+    function showCoachInfo(coach) {
+      // 教练数据
+      const coachData = {
+        'Chris': {
+          name: 'Chris',
+          avatar: './images/coach1.png',
+          title: '私教总监',
+          courses: ['减脂塑形训练', '力量训练进阶', '核心肌群强化'],
+          students: 346,
+          desc: 'Chris拥有10年健身行业经验，专注于力量训练与体态矫正。国际健身协会认证教练，帮助众多学员实现减脂增肌目标，擅长针对个人身体状况定制专属训练计划。'
+        },
+        'Rome': {
+          name: 'Rome',
+          avatar: './images/coach2.png',
+          title: '力量训练专家',
+          courses: ['力量训练基础', '增肌塑形', '功能性训练'],
+          students: 289,
+          desc: 'Rome专注于力量训练领域，拥有健美教练资格认证。擅长指导健身初学者正确入门，并能根据个人体质特点制定科学增肌计划。特别擅长指导男性训练者增肌与体能提升。'
+        },
+        'Lean': {
+          name: 'Lean',
+          avatar: './images/coachgirl.png',
+          title: '有氧训练专家',
+          courses: ['有氧减脂', '形体塑造', '舞蹈健身'],
+          students: 412,
+          desc: 'Lean是资深有氧训练教练，拥有多种健身操与舞蹈认证。她的课程充满活力，擅长将舞蹈元素融入健身训练中，让减脂过程更加有趣。她帮助大量女性学员重塑形体，找回自信。'
+        },
+        'Emma': {
+          name: 'Emma',
+          avatar: './images/coach-woman1.png',
+          title: '普拉提大师',
+          courses: ['普拉提入门', '核心强化', '体态矫正'],
+          students: 275,
+          desc: 'Emma是国际认证的普拉提教练，拥有瑜伽与普拉提双重背景。她的教学注重呼吸与动作的和谐统一，特别擅长帮助学员改善体态问题，提高身体柔韧性与核心力量。'
+        },
+        'David': {
+          name: 'David',
+          avatar: './images/coach-man1.png',
+          title: '功能性训练专家',
+          courses: ['功能性训练', '运动损伤防护', '体能提升'],
+          students: 203,
+          desc: 'David专注于功能性训练与运动康复领域，持有物理治疗师与健身教练双重认证。他的训练方法注重实用性与安全性，帮助学员建立全面的体能基础，预防运动损伤。'
+        }
+      };
+      
+      // 获取教练数据
+      const data = coachData[coach] || {
+        name: coach,
+        avatar: './images/placeholder.png',
+        title: '专业教练',
+        courses: ['健身基础', '体能训练'],
+        students: 100,
+        desc: '专业健身教练，拥有丰富的训练经验。'
+      };
+      
+      // 创建弹窗HTML
+      const modalHTML = `
+        <div class="coach-modal-content">
+          <div class="coach-modal-header">
+            <div class="coach-modal-avatar">
+              <img src="${data.avatar}" alt="${data.name}" onerror="handleImageError(this)">
+            </div>
+            <div class="coach-modal-title">
+              <h3>${data.name}</h3>
+              <p>${data.title}</p>
+            </div>
+            <span class="coach-modal-close">&times;</span>
+          </div>
+          <div class="coach-modal-body">
+            <div class="coach-modal-stats">
+              <div class="stat-item">
+                <div class="stat-value">${data.students}</div>
+                <div class="stat-label">学员数</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value">${data.courses.length}</div>
+                <div class="stat-label">课程数</div>
+              </div>
+            </div>
+            <div class="coach-modal-courses">
+              <h4>相关课程</h4>
+              <ul>
+                ${data.courses.map(course => `<li>${course}</li>`).join('')}
+              </ul>
+            </div>
+            <div class="coach-modal-desc">
+              <h4>教练简介</h4>
+              <p>${data.desc}</p>
+            </div>
+          </div>
+          <div class="coach-modal-footer">
+            <button class="coach-contact-btn">联系教练</button>
+          </div>
+        </div>
+      `;
+      
+      // 创建弹窗容器
+      const modal = document.createElement('div');
+      modal.className = 'coach-modal';
+      modal.innerHTML = modalHTML;
+      document.body.appendChild(modal);
+      
+      // 显示弹窗
+      setTimeout(() => {
+        modal.classList.add('show');
+      }, 10);
+      
+      // 关闭弹窗事件
+      modal.querySelector('.coach-modal-close').addEventListener('click', () => {
+        modal.classList.remove('show');
+        setTimeout(() => {
+          document.body.removeChild(modal);
+        }, 300);
+      });
+      
+      // 点击弹窗外部关闭
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('show');
+          setTimeout(() => {
+            document.body.removeChild(modal);
+          }, 300);
+        }
+      });
+      
+      // 联系教练按钮
+      modal.querySelector('.coach-contact-btn').addEventListener('click', () => {
+        alert(`即将联系 ${data.name} 教练`);
+      });
+    }
+  </script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f0f2f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft Yahei', sans-serif;
+    }
+
+    .iphone-frame {
+      position: relative;
+      width: 428px;
+      height: 926px;
+      background-color: #1c1c1e;
+      border-radius: 55px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      padding: 5px;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .iphone-screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-color: #f0f2f5;
+      border-radius: 48px;
+      overflow: hidden;
+    }
+
+    /* Dynamic Island (灵动岛) */
+    .dynamic-island {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 37px;
+      background-color: #000;
+      border-radius: 24px;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Small indicator light in Dynamic Island */
+    .dynamic-island::after {
+      content: '';
+      position: absolute;
+      right: 28px;
+      width: 8px;
+      height: 8px;
+      background-color: #09c95e;
+      border-radius: 50%;
+    }
+
+    .app-container {
+      height: 100%;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Hide scrollbar for a cleaner look */
+    .app-container::-webkit-scrollbar {
+      display: none;
+    }
+    .app-container {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    .app-header-placeholder {
+      height: 65px;
+      width: 100%;
+    }
+    
+    .main-content {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding-bottom: 70px;
+    }
+    
+    .main-content::-webkit-scrollbar {
+      display: none;
+    }
+    .main-content {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Status Bar iOS style */
+    .status-bar {
+      position: absolute;
+      top: 14px;
+      left: 0;
+      right: 0;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #000;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 150;
+    }
+
+    .status-time {
+      position: absolute;
+      left: 32px;
+    }
+
+    .status-indicators {
+      position: absolute;
+      right: 32px;
+      display: flex;
+      align-items: center;
+    }
+
+    .status-cell, .status-wifi, .status-battery {
+      margin-left: 8px;
+    }
+
+    /* 页面标题区域 */
+    .header {
+      display: flex;
+      align-items: center;
+      padding: 25px 20px 15px 20px;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      position: relative;
+    }
+
+    .back-btn {
+      font-size: 18px;
+      width: 40px;
+      color: #333;
+      position: absolute;
+      left: 20px;
+      z-index: 2;
+    }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 600;
+      flex-grow: 1;
+      text-align: center;
+      width: 100%;
+      position: absolute;
+      left: 0;
+    }
+
+    .action-buttons {
+      display: flex;
+      align-items: center;
+      position: absolute;
+      right: 20px;
+      z-index: 2;
+    }
+
+    .action-btn {
+      font-size: 20px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #333;
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+
+    .favorite-btn.active {
+      color: #ff6b00;
+    }
+
+    /* 轮播图 */
+    .carousel-container {
+      position: relative;
+      width: 100%;
+      height: 250px;
+      overflow: hidden;
+    }
+
+    .carousel-slides {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .carousel-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.5s ease;
+    }
+
+    .carousel-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .carousel-dots {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .carousel-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.5);
+      margin: 0 5px;
+      cursor: pointer;
+    }
+
+    .carousel-dot.active {
+      background-color: white;
+      transform: scale(1.2);
+    }
+
+    /* 标签区域 */
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 15px;
+      background-color: white;
+    }
+
+    .tag {
+      padding: 5px 10px;
+      border-radius: 15px;
+      background-color: #f5f5f5;
+      color: #666;
+      font-size: 12px;
+    }
+
+    /* 场馆信息 */
+    .venue-info-container {
+      padding: 15px;
+      background-color: white;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .venue-name {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .venue-distance {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .venue-distance i {
+      margin-right: 5px;
+      color: #ff6b00;
+    }
+
+    .venue-address {
+      display: flex;
+      align-items: start;
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .venue-address i {
+      margin-right: 5px;
+      color: #666;
+      margin-top: 3px;
+    }
+
+    .venue-address span {
+      flex: 1;
+    }
+
+    .venue-phone {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .venue-phone i {
+      margin-right: 5px;
+      color: #ff6b00;
+    }
+
+    .venue-desc {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    /* 分隔标题 */
+    .section-title {
+      padding: 15px;
+      background-color: white;
+      font-size: 18px;
+      font-weight: 600;
+      border-bottom: 1px solid #eee;
+      margin-top: 10px;
+      margin-bottom: 0;
+    }
+
+    /* 课程区域 */
+    .courses-section {
+      background-color: white;
+      padding: 15px;
+      margin-bottom: 10px;
+    }
+
+    .course-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .course-item {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
+
+    .course-image {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin-right: 12px;
+    }
+
+    .course-info {
+      flex: 1;
+    }
+
+    .course-name {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    .course-price {
+      font-size: 14px;
+      color: #ff6b00;
+      font-weight: 600;
+    }
+
+    .course-original-price {
+      font-size: 12px;
+      color: #999;
+      text-decoration: line-through;
+      margin-left: 5px;
+    }
+
+    /* 教练区域 */
+    .coaches-section {
+      background-color: white;
+      padding: 15px;
+      margin-bottom: 10px;
+    }
+
+    .coach-list {
+      display: flex;
+      overflow-x: auto;
+      gap: 15px;
+      padding: 5px 0;
+    }
+
+    .coach-list::-webkit-scrollbar {
+      display: none;
+    }
+
+    .coach-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 80px;
+    }
+
+    .coach-avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 8px;
+    }
+
+    .coach-name {
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .coach-role {
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+    }
+
+    /* 设施区域 */
+    .facilities-section {
+      background-color: white;
+      padding: 15px;
+      margin-bottom: 70px;
+    }
+
+    .facilities-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .facility-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: calc(25% - 15px);
+    }
+
+    .facility-icon {
+      font-size: 24px;
+      color: #ff6b00;
+      margin-bottom: 5px;
+    }
+
+    .facility-name {
+      font-size: 12px;
+      color: #666;
+      text-align: center;
+    }
+
+    /* 课程促销标签 */
+    .promotion-tag {
+      display: inline-block;
+      background-color: #ff3b30;
+      color: white;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-right: 6px;
+      font-weight: bold;
+    }
+    
+    /* 课程购买按钮 */
+    .course-buy-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(to right, #ff6b00, #ff9500);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(255, 107, 0, 0.3);
+      margin-left: 10px;
+      flex-shrink: 0;
+    }
+    
+    /* 热门图标 */
+    .hot-icon {
+      color: #ff3b30;
+      margin-right: 6px;
+      font-size: 20px;
+      animation: hot-pulse 1.5s infinite;
+    }
+    
+    @keyframes hot-pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.2);
+      }
+    }
+    
+    /* 教练弹窗样式 */
+    .coach-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+    
+    .coach-modal.show {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .coach-modal-content {
+      width: 85%;
+      max-width: 360px;
+      background-color: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      transform: translateY(20px);
+      transition: transform 0.3s;
+    }
+    
+    .coach-modal.show .coach-modal-content {
+      transform: translateY(0);
+    }
+    
+    .coach-modal-header {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #f0f0f0;
+      position: relative;
+    }
+    
+    .coach-modal-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-right: 15px;
+    }
+    
+    .coach-modal-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .coach-modal-title h3 {
+      margin: 0 0 5px 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .coach-modal-title p {
+      margin: 0;
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .coach-modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 24px;
+      color: #999;
+      cursor: pointer;
+    }
+    
+    .coach-modal-body {
+      padding: 20px;
+    }
+    
+    .coach-modal-stats {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    
+    .stat-item {
+      flex: 1;
+      text-align: center;
+      padding: 10px;
+      background-color: #f8f8f8;
+      border-radius: 8px;
+      margin: 0 5px;
+    }
+    
+    .stat-value {
+      font-size: 20px;
+      font-weight: bold;
+      color: #ff6b00;
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+    }
+    
+    .coach-modal-courses, .coach-modal-desc {
+      margin-bottom: 20px;
+    }
+    
+    .coach-modal-courses h4, .coach-modal-desc h4 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin: 0 0 10px 0;
+    }
+    
+    .coach-modal-courses ul {
+      margin: 0;
+      padding: 0 0 0 15px;
+    }
+    
+    .coach-modal-courses li {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+    
+    .coach-modal-desc p {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.5;
+      margin: 0;
+    }
+    
+    .coach-modal-footer {
+      padding: 15px 20px;
+      border-top: 1px solid #f0f0f0;
+      text-align: center;
+    }
+    
+    .coach-contact-btn {
+      background-color: #ff6b00;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 30px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-frame">
+    <div class="iphone-screen">
+      <!-- Dynamic Island replaces the notch -->
+      <div class="dynamic-island"></div>
+      
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <div class="status-time">10:12</div>
+        <div class="status-indicators">
+          <div class="status-cell">
+            <svg width="18" height="12" viewBox="0 0 18 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 0H2C0.9 0 0 0.9 0 2V10C0 11.1 0.9 12 2 12H16C17.1 12 18 11.1 18 10V2C18 0.9 17.1 0 16 0ZM11 10H2V2H11V10ZM16 10H12V2H16V10Z" fill="black"/>
+            </svg>
+          </div>
+          <div class="status-wifi">
+            <svg width="15" height="11" viewBox="0 0 15 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M7.5 10.5C8.328 10.5 9 9.828 9 9C9 8.172 8.328 7.5 7.5 7.5C6.672 7.5 6 8.172 6 9C6 9.828 6.672 10.5 7.5 10.5Z" fill="black"/>
+              <path d="M0 3C2.076 1.107 4.674 0 7.5 0C10.326 0 12.924 1.107 15 3L13.326 4.674C11.682 3.15 9.684 2.25 7.5 2.25C5.316 2.25 3.318 3.15 1.674 4.674L0 3Z" fill="black"/>
+              <path d="M3 6C4.167 4.917 5.75 4.25 7.5 4.25C9.25 4.25 10.833 4.917 12 6L10.5 7.5C9.75 6.833 8.667 6.5 7.5 6.5C6.333 6.5 5.25 6.833 4.5 7.5L3 6Z" fill="black"/>
+            </svg>
+          </div>
+          <div class="status-battery">
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="black"/>
+              <rect x="2" y="2" width="18" height="8" rx="1.5" fill="black"/>
+              <path d="M23 4V8C23.8 7.66667 24.3333 7 24.5 6C24.3333 5 23.8 4.33333 23 4Z" fill="black"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <div class="app-container">
+        <!-- App header placeholder replaces old status bar -->
+        <div class="app-header-placeholder"></div>
+        
+        <!-- 页面标题区域 -->
+        <div class="header">
+          <a href="javascript:history.back()" class="back-btn">
+            <i class="fas fa-chevron-left"></i>
+          </a>
+          <div class="page-title">场馆详情 <span id="venue-id" style="display: none;"></span></div>
+          <div class="action-buttons">
+            <button class="action-btn favorite-btn" onclick="toggleFavorite()">
+              <i class="far fa-heart"></i>
+            </button>
+            <button class="action-btn share-btn" onclick="shareVenue()">
+              <i class="fas fa-share-alt"></i>
+            </button>
+          </div>
+        </div>
+        
+        <!-- 主要内容区域 -->
+        <div class="main-content">
+          <!-- 轮播图 -->
+          <div class="carousel-container">
+            <div class="carousel-slides">
+              <div class="carousel-slide">
+                <img src="./images/venue1.png" alt="场馆图片1" onerror="handleImageError(this)">
+              </div>
+              <div class="carousel-slide">
+                <img src="./images/venue2.png" alt="场馆图片2" onerror="handleImageError(this)">
+              </div>
+              <div class="carousel-slide">
+                <img src="./images/venue3.png" alt="场馆图片3" onerror="handleImageError(this)">
+              </div>
+            </div>
+            <div class="carousel-dots">
+              <div class="carousel-dot active"></div>
+              <div class="carousel-dot"></div>
+              <div class="carousel-dot"></div>
+            </div>
+          </div>
+          
+          <!-- 标签区域 -->
+          <div class="tags-container">
+            <div class="tag">24小时营业</div>
+            <div class="tag">器械齐全</div>
+            <div class="tag">私教一对一</div>
+            <div class="tag">免费停车</div>
+            <div class="tag">团操课程</div>
+          </div>
+          
+          <!-- 场馆信息 -->
+          <div class="venue-info-container">
+            <div class="venue-name">光速健康中心</div>
+            <div class="venue-distance">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>距离您 2.5 公里</span>
+            </div>
+            <div class="venue-address">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>未来城路123号, 科技园区A座 (123 Future Ave, Tech Park, Building A)</span>
+            </div>
+            <div class="venue-phone">
+              <i class="fas fa-phone-alt"></i>
+              <span>(010) 1234-5678</span>
+            </div>
+            <div class="venue-desc">
+              "光速健康中心"是一家高端健身中心，提供全面的健身设施和专业的健身指导。我们的使命是通过科学的健身方法和专业的指导，帮助您实现健康、强壮和活力的生活方式。无论您是健身新手还是资深健身爱好者，我们都能为您提供最适合的健身方案。
+            </div>
+          </div>
+          
+          <!-- 绑定课程 -->
+          <h3 class="section-title"><i class="fas fa-fire hot-icon"></i>热门课程</h3>
+          <div class="courses-section">
+            <div class="course-list">
+              <div class="course-item" onclick="window.location.href='venue_course_detail.html?id=1'">
+                <img src="./images/course1.png" alt="减脂课程" class="course-image" onerror="handleImageError(this)">
+                <div class="course-info">
+                  <div class="course-name"><span class="promotion-tag">热销</span>【热门】减脂塑形提高代谢</div>
+                  <div class="course-price">
+                    ¥39.9 <span class="course-original-price">¥99</span>
+                  </div>
+                </div>
+                <button class="course-buy-btn">
+                  <i class="fas fa-shopping-cart"></i>
+                </button>
+              </div>
+              <div class="course-item" onclick="window.location.href='venue_course_detail.html?id=2'">
+                <img src="./images/course2.png" alt="力量训练" class="course-image" onerror="handleImageError(this)">
+                <div class="course-info">
+                  <div class="course-name"><span class="promotion-tag">新品</span>【人气】力量训练增肌课</div>
+                  <div class="course-price">
+                    ¥49.9 <span class="course-original-price">¥129</span>
+                  </div>
+                </div>
+                <button class="course-buy-btn">
+                  <i class="fas fa-shopping-cart"></i>
+                </button>
+              </div>
+              <div class="course-item" onclick="window.location.href='venue_course_detail.html?id=3'">
+                <img src="./images/course3.png" alt="体验课" class="course-image" onerror="handleImageError(this)">
+                <div class="course-info">
+                  <div class="course-name"><span class="promotion-tag">优惠</span>【新人专享】单人体验课</div>
+                  <div class="course-price">
+                    ¥9.9 <span class="course-original-price">¥128</span>
+                  </div>
+                </div>
+                <button class="course-buy-btn">
+                  <i class="fas fa-shopping-cart"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 绑定教练 -->
+          <h3 class="section-title"><i class="fas fa-star" style="color: #FFD700; margin-right: 6px;"></i>明星教练</h3>
+          <div class="coaches-section">
+            <div class="coach-list">
+              <div class="coach-item" onclick="showCoachInfo('Chris')">
+                <img src="./images/coach1.png" alt="教练1" class="coach-avatar" onerror="handleImageError(this)">
+                <div class="coach-name">Chris</div>
+                <div class="coach-role">私教总监</div>
+              </div>
+              <div class="coach-item" onclick="showCoachInfo('Rome')">
+                <img src="./images/coach2.png" alt="教练2" class="coach-avatar" onerror="handleImageError(this)">
+                <div class="coach-name">Rome</div>
+                <div class="coach-role">力量训练</div>
+              </div>
+              <div class="coach-item" onclick="showCoachInfo('Lean')">
+                <img src="./images/coachgirl.png" alt="教练3" class="coach-avatar" onerror="handleImageError(this)">
+                <div class="coach-name">Lean</div>
+                <div class="coach-role">有氧训练</div>
+              </div>
+              <div class="coach-item" onclick="showCoachInfo('Emma')">
+                <img src="./images/coach-woman1.png" alt="教练4" class="coach-avatar" onerror="handleImageError(this)">
+                <div class="coach-name">Emma</div>
+                <div class="coach-role">普拉提</div>
+              </div>
+              <div class="coach-item" onclick="showCoachInfo('David')">
+                <img src="./images/coach-man1.png" alt="教练5" class="coach-avatar" onerror="handleImageError(this)">
+                <div class="coach-name">David</div>
+                <div class="coach-role">功能性训练</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 场馆设施 -->
+          <h3 class="section-title">场馆设施</h3>
+          <div class="facilities-section">
+            <div class="facilities-list">
+              <div class="facility-item">
+                <div class="facility-icon">
+                  <i class="fas fa-swimming-pool"></i>
+                </div>
+                <div class="facility-name">游泳池</div>
+              </div>
+              <div class="facility-item">
+                <div class="facility-icon">
+                  <i class="fas fa-hot-tub"></i>
+                </div>
+                <div class="facility-name">桑拿房</div>
+              </div>
+              <div class="facility-item">
+                <div class="facility-icon">
+                  <i class="fas fa-shower"></i>
+                </div>
+                <div class="facility-name">淋浴间</div>
+              </div>
+              <div class="facility-item">
+                <div class="facility-icon">
+                  <i class="fas fa-dumbbell"></i>
+                </div>
+                <div class="facility-name">自由重量区</div>
+              </div>
+              <div class="facility-item">
+                <div class="facility-icon">
+                  <i class="fas fa-bicycle"></i>
+                </div>
+                <div class="facility-name">动感单车</div>
+              </div>
+              <div class="facility-item">
+                <div class="facility-icon">
+                  <i class="fas fa-heart"></i>
+                </div>
+                <div class="facility-name">有氧区</div>
+              </div>
+              <div class="facility-item">
+                <div class="facility-icon">
+                  <i class="fas fa-wifi"></i>
+                </div>
+                <div class="facility-name">免费WiFi</div>
+              </div>
+              <div class="facility-item">
+                <div class="facility-icon">
+                  <i class="fas fa-parking"></i>
+                </div>
+                <div class="facility-name">停车场</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html> 

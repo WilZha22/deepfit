@@ -931,35 +931,35 @@
             <div class="venues-section">
                 <div class="section-header">
                     <h3 class="section-title">附近的场馆</h3>
-                    <span class="section-more">更多 ></span>
+                    <span class="section-more" onclick="window.location.href='venues.html'">更多 ></span>
                 </div>
                 <div class="venue-list">
-                    <div class="venue-item">
+                    <div class="venue-item" onclick="window.location.href='venue-detail.html?id=1'">
                         <img src="./images/place1.png" alt="Velocity Fitness Hub" class="venue-image" onerror="handleImageError(this)" >
                         <div class="venue-details">
                             <h4 class="venue-name">光速健康中心</h4>
                             <p class="venue-address">未来城路123号, 科技园区A座 (123 Future Ave, Tech Park, Building A)</p>
                             <p class="venue-phone"><i class="fas fa-phone-alt"></i> (010) 1234-5678</p>
                         </div>
-                        <button class="venue-book-btn">预约</button>
+                        <button class="venue-book-btn" onclick="event.stopPropagation(); window.location.href='venue-detail.html?id=1'">预约</button>
                     </div>
-                    <div class="venue-item">
+                    <div class="venue-item" onclick="window.location.href='venue-detail.html?id=2'">
                         <img src="./images/place2.png" alt="Iron Grip Gym" class="venue-image" onerror="handleImageError(this)" >
                         <div class="venue-details">
                             <h4 class="venue-name">铁拳健身房</h4>
                             <p class="venue-address">中央大街45B号, 商业广场2层 (45B Central St, Commercial Plaza, 2F)</p>
                             <p class="venue-phone"><i class="fas fa-phone-alt"></i> (021) 9876-5432</p>
                         </div>
-                        <button class="venue-book-btn">预约</button>
+                        <button class="venue-book-btn" onclick="event.stopPropagation(); window.location.href='venue-detail.html?id=2'">预约</button>
                     </div>
-                    <div class="venue-item">
+                    <div class="venue-item" onclick="window.location.href='venue-detail.html?id=3'">
                         <img src="./images/place3.png" alt="Zen Flow Yoga" class="venue-image" onerror="handleImageError(this)" >
                         <div class="venue-details">
                             <h4 class="venue-name">禅静瑜伽馆</h4>
                             <p class="venue-address">宁静巷1号, 文化中心旁 (1 Serenity Lane, Next to Cultural Center)</p>
                             <p class="venue-phone"><i class="fas fa-phone-alt"></i> (0755) 2468-1357</p>
                         </div>
-                        <button class="venue-book-btn">预约</button>
+                        <button class="venue-book-btn" onclick="event.stopPropagation(); window.location.href='venue-detail.html?id=3'">预约</button>
                     </div>
                 </div>
             </div>
