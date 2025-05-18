@@ -535,13 +535,6 @@
       
       img.src = placeholderPath;
       return true; // 阻止默认错误处理
-    } else {
-        // 否则等待占位图加载完成后替换
-        placeholderImg.onload = function() {
-          img.src = placeholderImg.src;
-        };
-      }
-      return true; // 阻止默认错误处理
     }
   </script>
 </head>
@@ -600,7 +593,7 @@
         <div class="main-content">
           <!-- 教练效果榜标题区域 -->
           <div class="ranking-header">
-            <img src="./images/venue3.jpg" class="ranking-header-bg" alt="健身背景" onerror="handleImageError(this)" >
+            <img src="./images/venue3.p n g" class="ranking-header-bg" alt="健身背景" onerror="handleImageError(this)" >
             <div class="ranking-header-content">
               <h1 class="ranking-title">教练效果榜</h1>
               <p class="ranking-subtitle">5月15日更新·按教练的训练效果评分排序</p>
@@ -625,7 +618,7 @@
                 </div>
               </div>
               <div class="coach-avatar">
-                <img src="./images/venue1.jpg" alt="杨潇源" onerror="handleImageError(this)" >
+                <img src="./images/venue1.png" alt="杨潇源" onerror="handleImageError(this)" >
               </div>
               <div class="coach-info">
                 <div>
@@ -657,7 +650,7 @@
                 </div>
               </div>
               <div class="coach-avatar">
-                <img src="./images/venue2.jpg" alt="田田" onerror="handleImageError(this)" >
+                <img src="./images/venue2.png" alt="田田" onerror="handleImageError(this)" >
               </div>
               <div class="coach-info">
                 <div>
@@ -689,7 +682,7 @@
                 </div>
               </div>
               <div class="coach-avatar">
-                <img src="./images/venue1.jpg" alt="许溢超" onerror="handleImageError(this)" >
+                <img src="./images/venue1.png" alt="许溢超" onerror="handleImageError(this)" >
               </div>
               <div class="coach-info">
                 <div>
@@ -721,7 +714,7 @@
                 </div>
               </div>
               <div class="coach-avatar">
-                <img src="./images/venue2.jpg" alt="佳佳教练" onerror="handleImageError(this)" >
+                <img src="./images/venue2.png" alt="佳佳教练" onerror="handleImageError(this)" >
               </div>
               <div class="coach-info">
                 <div>
@@ -747,7 +740,7 @@
                 </div>
               </div>
               <div class="coach-avatar">
-                <img src="./images/venue3.jpg" alt="肖磊" onerror="handleImageError(this)" >
+                <img src="./images/venue3.png" alt="肖磊" onerror="handleImageError(this)" >
               </div>
               <div class="coach-info">
                 <div>

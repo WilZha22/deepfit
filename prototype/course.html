@@ -803,13 +803,6 @@
       
       img.src = placeholderPath;
       return true; // 阻止默认错误处理
-    } else {
-        // 否则等待占位图加载完成后替换
-        placeholderImg.onload = function() {
-          img.src = placeholderImg.src;
-        };
-      }
-      return true; // 阻止默认错误处理
     }
   </script>
 </head>
@@ -946,14 +939,14 @@
                                     <span class="tag-item">瑜伽垫</span>
                                 </div>
                                 <div class="course-coach">
-                                    <img src="./images/user-avatar.jpg" alt="Lily" class="coach-avatar" onerror="handleImageError(this)" >
+                                    <img src="./images/user-avatar.png" alt="Lily" class="coach-avatar" onerror="handleImageError(this)" >
                                     <div class="coach-info">
                                         <div class="coach-name">Lily</div>
                                     </div>
                                     <div class="attendee-avatars">
-                                        <img src="./images/coach-man1.jpg" class="attendee-avatar" onerror="handleImageError(this)" >
-                                        <img src="./images/coach-woman4.jpg" class="attendee-avatar" onerror="handleImageError(this)" >
-                                        <img src="./images/coach-man1.jpg" class="attendee-avatar" onerror="handleImageError(this)" >
+                                        <img src="./images/coach-man1.png" class="attendee-avatar" onerror="handleImageError(this)" >
+                                        <img src="./images/coach-woman4.png" class="attendee-avatar" onerror="handleImageError(this)" >
+                                        <img src="./images/coach-man1.png" class="attendee-avatar" onerror="handleImageError(this)" >
                                         <div class="attendee-count">3+</div>
                                     </div>
                                 </div>
@@ -983,13 +976,13 @@
                                     <span class="tag-item">360平卡</span>
                                 </div>
                                 <div class="course-coach">
-                                    <img src="./images/coach-woman2.jpg" alt="Aris" class="coach-avatar" onerror="handleImageError(this)" >
+                                    <img src="./images/coach-woman2.png" alt="Aris" class="coach-avatar" onerror="handleImageError(this)" >
                                     <div class="coach-info">
                                         <div class="coach-name">Aris</div>
                                     </div>
                                     <div class="attendee-avatars">
-                                        <img src="./images/coach-man1.jpg" class="attendee-avatar" onerror="handleImageError(this)" >
-                                        <img src="./images/coach-woman1.jpg" class="attendee-avatar" onerror="handleImageError(this)" >
+                                        <img src="./images/coach-man1.png" class="attendee-avatar" onerror="handleImageError(this)" >
+                                        <img src="./images/coach-woman1.png" class="attendee-avatar" onerror="handleImageError(this)" >
                                         <div class="attendee-count">2+</div>
                                     </div>
                                 </div>
@@ -1084,12 +1077,12 @@
                                 
                                 <div class="pt-coaches">
                                     <div class="pt-coach">
-                                        <img src="./images/coach-woman2.jpg" class="pt-coach-avatar" onerror="handleImageError(this)" >
+                                        <img src="./images/coach-woman2.png" class="pt-coach-avatar" onerror="handleImageError(this)" >
                                         <div class="pt-coach-name">Sundy</div>
                                     </div>
                                     
                                     <div class="pt-coach" style="margin-left: auto;">
-                                        <img src="./images/coach-woman2.jpg" class="pt-coach-avatar" onerror="handleImageError(this)" >
+                                        <img src="./images/coach-woman2.png" class="pt-coach-avatar" onerror="handleImageError(this)" >
                                         <div class="pt-coach-name">静姐</div>
                                     </div>
                                 </div>
@@ -1129,12 +1122,12 @@
                                 
                                 <div class="pt-coaches">
                                     <div class="pt-coach">
-                                        <img src="./images/coach-woman4.jpg" class="pt-coach-avatar" onerror="handleImageError(this)" >
+                                        <img src="./images/coach-woman4.png" class="pt-coach-avatar" onerror="handleImageError(this)" >
                                         <div class="pt-coach-name">佳琦</div>
                                     </div>
                                     
                                     <div class="pt-coach" style="margin-left: auto;">
-                                        <img src="./images/coach-woman2.jpg" class="pt-coach-avatar" onerror="handleImageError(this)" >
+                                        <img src="./images/coach-woman2.png" class="pt-coach-avatar" onerror="handleImageError(this)" >
                                         <div class="pt-coach-name">李波</div>
                                     </div>
                                 </div>

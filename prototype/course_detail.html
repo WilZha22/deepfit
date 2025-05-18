@@ -597,14 +597,7 @@
       
       img.src = placeholderPath;
       return true; // 阻止默认错误处理
-    } else {
-        // 否则等待占位图加载完成后替换
-        placeholderImg.onload = function() {
-          img.src = placeholderImg.src;
-        };
-      }
-      return true; // 阻止默认错误处理
-    }
+    } 
   </script>
 </head>
 <body>
@@ -679,7 +672,7 @@
                 <span class="course-tag">瑜伽垫</span>
               </div>
               <div class="course-coach">
-                <img src="./images/coach-woman2.jpg" alt="教练头像" class="coach-avatar" onerror="handleImageError(this)" >
+                <img src="./images/coach-woman2.png" alt="教练头像" class="coach-avatar" onerror="handleImageError(this)" >
                 <div class="coach-info">
                   <div class="coach-name">Aris</div>
                   <div class="coach-title">普拉提教练 | 5年教龄</div>
@@ -703,23 +696,23 @@
             </div>
             <div class="attendees">
               <div class="attendee">
-                <img src="./images/coach-woman1.jpg" alt="参与者头像" class="attendee-avatar" onerror="handleImageError(this)" >
+                <img src="./images/coach-woman1.png" alt="参与者头像" class="attendee-avatar" onerror="handleImageError(this)" >
                 <span class="attendee-name">小红</span>
               </div>
               <div class="attendee">
-                <img src="./images/coach-man2.jpg" alt="参与者头像" class="attendee-avatar" onerror="handleImageError(this)" >
+                <img src="./images/coach-man2.png" alt="参与者头像" class="attendee-avatar" onerror="handleImageError(this)" >
                 <span class="attendee-name">阿明</span>
               </div>
               <div class="attendee">
-                <img src="./images/coach-woman1.jpg" alt="参与者头像" class="attendee-avatar" onerror="handleImageError(this)" >
+                <img src="./images/coach-woman1.png" alt="参与者头像" class="attendee-avatar" onerror="handleImageError(this)" >
                 <span class="attendee-name">果果</span>
               </div>
               <div class="attendee">
-                <img src="./images/coach-man1.jpg" alt="参与者头像" class="attendee-avatar" onerror="handleImageError(this)" >
+                <img src="./images/coach-man1.png" alt="参与者头像" class="attendee-avatar" onerror="handleImageError(this)" >
                 <span class="attendee-name">大山</span>
               </div>
               <div class="attendee">
-                <img src="./images/coach-woman2.jpg" alt="参与者头像" class="attendee-avatar" onerror="handleImageError(this)" >
+                <img src="./images/coach-woman2.png" alt="参与者头像" class="attendee-avatar" onerror="handleImageError(this)" >
                 <span class="attendee-name">小雨</span>
               </div>
               <div class="attendee">
@@ -759,28 +752,28 @@
             </div>
             <div class="actions-list">
               <div class="action-item">
-                <img src="./images/venue2.jpg" alt="动作图片" class="action-image" onerror="handleImageError(this)" >
+                <img src="./images/venue2.png" alt="动作图片" class="action-image" onerror="handleImageError(this)" >
                 <div class="action-info">
                   <div class="action-name">脊柱前屈伸展</div>
                   <div class="action-sets">3组 × 12次</div>
                 </div>
               </div>
               <div class="action-item">
-                <img src="./images/venue1.jpg" alt="动作图片" class="action-image" onerror="handleImageError(this)" >
+                <img src="./images/venue1.png" alt="动作图片" class="action-image" onerror="handleImageError(this)" >
                 <div class="action-info">
                   <div class="action-name">侧向扭转</div>
                   <div class="action-sets">2组 × 10次/侧</div>
                 </div>
               </div>
               <div class="action-item">
-                <img src="./images/venue1.jpg" alt="动作图片" class="action-image" onerror="handleImageError(this)" >
+                <img src="./images/venue1.png" alt="动作图片" class="action-image" onerror="handleImageError(this)" >
                 <div class="action-info">
                   <div class="action-name">猫式伸展</div>
                   <div class="action-sets">4组 × 8次</div>
                 </div>
               </div>
               <div class="action-item">
-                <img src="./images/venue3.jpg" alt="动作图片" class="action-image" onerror="handleImageError(this)" >
+                <img src="./images/venue3.png" alt="动作图片" class="action-image" onerror="handleImageError(this)" >
                 <div class="action-info">
                   <div class="action-name">肩桥抬臀</div>
                   <div class="action-sets">3组 × 15次</div>
