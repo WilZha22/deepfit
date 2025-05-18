@@ -1,10 +1,10 @@
 {
+  "version": 2,
   "buildCommand": null,
-  "outputDirectory": ".",
   "installCommand": null,
   "framework": null,
+  "outputDirectory": "prototype",
   "rewrites": [
-    { "source": "/", "destination": "/prototype/index.html" },
-    { "source": "/:path*", "destination": "/prototype/:path*" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 } 
