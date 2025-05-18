@@ -700,6 +700,42 @@
       }
     }
   </style>
+
+  <script>
+    // 预加载占位图片
+    const placeholderImg = new Image();
+    placeholderImg.src = './images/placeholder.png';
+    
+    // 图片加载错误处理
+    function handleImageError(img) {
+      // 获取图片原始URL
+      const originalSrc = img.getAttribute('data-original-src') || img.src;
+      
+      // 检查是否是cloudinary的URL
+      if (originalSrc.includes('cloudinary.com') || originalSrc.includes('randomuser.me')) {
+        // 提取URL的最后部分作为文件名
+        const parts = originalSrc.split('/');
+        const fileName = parts[parts.length - 1];
+        // 替换为本地路径
+        img.src = `./images/${fileName}`;
+        return true;
+      }
+      
+      // 设置适当的占位图路径
+      const placeholderPath = './images/placeholder.png';
+      
+      // 如果占位图已加载完成，则立即替换
+      if (placeholderImg.complete) {
+        img.src = placeholderPath;
+      } else {
+        // 否则等待占位图加载完成后替换
+        placeholderImg.onload = function() {
+          img.src = placeholderPath;
+        };
+      }
+      return true; // 阻止默认错误处理
+    }
+  </script>
 </head>
 <body>
   <div class="iphone-frame">
@@ -792,7 +828,7 @@
             <!-- 场馆卡片1 -->
             <div class="venue-card">
               <div class="venue-image-container">
-                <img src="/images/venue1.jpg?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="venue-image" alt="健身房" onerror="this.src='/images/placeholder.png'" >
+                <img src="./images/venue1.png?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="venue-image" alt="健身房" onerror="handleImageError(this)" >
                 <!-- 场馆标签 - 移到图片内左上方 -->
                 <div class="venue-image-tags">
                   <span class="venue-image-tag">健身房</span>
@@ -804,7 +840,7 @@
                   <div class="coaches-list">
                     <div class="coach-card">
                       <div class="coach-avatar">
-                        <img src="/images/coach-woman1.jpg" alt="教练头像" onerror="this.src='/images/placeholder.png'" >
+                        <img src="./images/coach-woman1.png" alt="教练头像" onerror="handleImageError(this)" >
                       </div>
                       <div class="coach-info">
                         <div class="coach-name">李教练</div>
@@ -813,7 +849,7 @@
                     </div>
                     <div class="coach-card">
                       <div class="coach-avatar">
-                        <img src="/images/user-avatar.jpg" alt="教练头像" onerror="this.src='/images/placeholder.png'" >
+                        <img src="./images/user-avatar.png" alt="教练头像" onerror="handleImageError(this)" >
                       </div>
                       <div class="coach-info">
                         <div class="coach-name">王教练</div>
@@ -822,7 +858,7 @@
                     </div>
                     <div class="coach-card">
                       <div class="coach-avatar">
-                        <img src="/images/coach-woman4.jpg" alt="教练头像" onerror="this.src='/images/placeholder.png'" >
+                        <img src="./images/coach-woman4.png" alt="教练头像" onerror="handleImageError(this)" >
                       </div>
                       <div class="coach-info">
                         <div class="coach-name">张教练</div>
@@ -894,7 +930,7 @@
             
             <div class="venue-card">
               <div class="venue-image-container">
-                <img src="/images/venue2.jpg?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="venue-image" alt="健身房" onerror="this.src='/images/placeholder.png'" >
+                <img src="./images/venue2.png?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="venue-image" alt="健身房" onerror="handleImageError(this)" >
                 <!-- 场馆标签 - 移到图片内左上方 -->
                 <div class="venue-image-tags">
                   <span class="venue-image-tag">健身房</span>
@@ -906,7 +942,7 @@
                   <div class="coaches-list">
                     <div class="coach-card">
                       <div class="coach-avatar">
-                        <img src="/images/coach-man1.jpg" alt="教练头像" onerror="this.src='/images/placeholder.png'" >
+                        <img src="./images/coach-man1.png" alt="教练头像" onerror="handleImageError(this)" >
                       </div>
                       <div class="coach-info">
                         <div class="coach-name">张教练</div>
@@ -915,7 +951,7 @@
                     </div>
                     <div class="coach-card">
                       <div class="coach-avatar">
-                        <img src="/images/coach-man2.jpg" alt="教练头像" onerror="this.src='/images/placeholder.png'" >
+                        <img src="./images/coach-man2.png" alt="教练头像" onerror="handleImageError(this)" >
                       </div>
                       <div class="coach-info">
                         <div class="coach-name">刘教练</div>
@@ -986,7 +1022,7 @@
             <!-- 场馆卡片3 -->
             <div class="venue-card">
               <div class="venue-image-container">
-                <img src="/images/venue3.jpg?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="venue-image" alt="瑜伽馆" onerror="this.src='/images/placeholder.png'" >
+                <img src="./images/venue3.png?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="venue-image" alt="瑜伽馆" onerror="handleImageError(this)" >
                 <!-- 场馆标签 - 移到图片内左上方 -->
                 <div class="venue-image-tags">
                   <span class="venue-image-tag">瑜伽馆</span>
@@ -998,7 +1034,7 @@
                   <div class="coaches-list">
                     <div class="coach-card">
                       <div class="coach-avatar">
-                        <img src="/images/coach-woman2.jpg" alt="教练头像" onerror="this.src='/images/placeholder.png'" >
+                        <img src="./images/coach-woman2.png" alt="教练头像" onerror="handleImageError(this)" >
                       </div>
                       <div class="coach-info">
                         <div class="coach-name">林教练</div>
@@ -1007,7 +1043,7 @@
                     </div>
                     <div class="coach-card">
                       <div class="coach-avatar">
-                        <img src="/images/coach-woman3.jpg" alt="教练头像" onerror="this.src='/images/placeholder.png'" >
+                        <img src="./images/coach-woman3.png" alt="教练头像" onerror="handleImageError(this)" >
                       </div>
                       <div class="coach-info">
                         <div class="coach-name">陈教练</div>

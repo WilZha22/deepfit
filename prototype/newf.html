@@ -390,6 +390,26 @@
             background-color: #3f51b5;
         }
     </style>
+
+  <script>
+    // 预加载占位图片
+    const placeholderImg = new Image();
+    placeholderImg.src = '/images/placeholder.png';
+    
+    // 图片加载错误处理
+    function handleImageError(img) {
+      // 如果占位图已加载完成，则立即替换
+      if (placeholderImg.complete) {
+        img.src = placeholderImg.src;
+      } else {
+        // 否则等待占位图加载完成后替换
+        placeholderImg.onload = function() {
+          img.src = placeholderImg.src;
+        };
+      }
+      return true; // 阻止默认错误处理
+    }
+  </script>
 </head>
 <body>
     <div class="iphone-frame">

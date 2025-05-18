@@ -377,6 +377,26 @@
       cursor: pointer;
     }
   </style>
+
+  <script>
+    // 预加载占位图片
+    const placeholderImg = new Image();
+    placeholderImg.src = '/images/placeholder.png';
+    
+    // 图片加载错误处理
+    function handleImageError(img) {
+      // 如果占位图已加载完成，则立即替换
+      if (placeholderImg.complete) {
+        img.src = placeholderImg.src;
+      } else {
+        // 否则等待占位图加载完成后替换
+        placeholderImg.onload = function() {
+          img.src = placeholderImg.src;
+        };
+      }
+      return true; // 阻止默认错误处理
+    }
+  </script>
 </head>
 <body>
   <div class="iphone-frame">
@@ -442,7 +462,7 @@
           <div class="assistant-card">
             <div class="assistant-header">
               <div class="assistant-avatar">
-                <img src="/images/assistant.png" alt="助教头像" onerror="this.src='https://via.placeholder.com/50'" onerror="this.src='/images/placeholder.png'" >
+                <img src="./images/assistant.png" alt="助教头像" onerror="this.src='https://via.placeholder.com/50'" onerror="handleImageError(this)" >
               </div>
               <div class="assistant-info">
                 <div class="assistant-name">
@@ -458,7 +478,7 @@
               </div>
               <div class="qr-code-container">
                 <div class="qr-code">
-                  <img src="/images/qrcode.png" alt="二维码" onerror="this.src='https://via.placeholder.com/180'" onerror="this.src='/images/placeholder.png'" >
+                  <img src="./images/qrcode.png" alt="二维码" onerror="this.src='https://via.placeholder.com/180'" onerror="handleImageError(this)" >
                 </div>
               </div>
               <div class="qr-code-hint">
