@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>添加助教 - KeepFit</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <script>
+    // 页面加载完成后设置缩放比例为80%
+    window.onload = function() {
+      document.body.style.zoom = "80%";
+    }
+
+    // 图片加载错误处理
+    function handleImageError(img) {
+      // 判断当前是否为本地文件系统访问
+      const isLocalFile = window.location.protocol === 'file:';
+      // 获取图片原始URL
+      const originalSrc = img.getAttribute('data-original-src') || img.src;
+      
+      // 检查是否是cloudinary的URL
+      if (originalSrc.includes('cloudinary.com') || originalSrc.includes('randomuser.me')) {
+        // 提取URL的最后部分作为文件名
+        const parts = originalSrc.split('/');
+        const fileName = parts[parts.length - 1];
+        // 替换为本地路径
+        img.src = `./images/${fileName}`;
+        return true;
+      }
+      
+      // 设置适当的占位图路径
+      const placeholderPath = './images/placeholder.png';
+      
+      img.src = placeholderPath;
+      return true;
+    }
+  </script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft Yahei', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: hsl(216, 20%, 95%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .iphone-frame {
+      position: relative;
+      width: 428px; /* iPhone 14 Pro Max width */
+      height: 926px; /* iPhone 14 Pro Max height */
+      background-color: #1c1c1e; /* Dark grey for the phone body */
+      border-radius: 55px; /* Rounded corners for the phone */
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      padding: 5px; /* Small padding for the bezel */
+      margin-top: 20px; /* Space from top */
+      margin-bottom: 20px; /* Space from bottom */
+    }
+
+    .iphone-screen {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-color: #f0f2f5; /* Screen background, matching the app's light grey */
+      border-radius: 48px; /* Inner screen rounded corners */
+      overflow: hidden; /* Clip content to screen */
+    }
+
+    /* Dynamic Island (灵动岛) instead of notch */
+    .dynamic-island {
+      position: absolute;
+      top: 12px; /* Position from top */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px; /* Width of Dynamic Island */
+      height: 37px; /* Height of Dynamic Island */
+      background-color: #000; /* Black color */
+      border-radius: 24px; /* Rounded corners */
+      z-index: 200; /* Above everything else on the screen */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Small indicator light in Dynamic Island */
+    .dynamic-island::after {
+      content: '';
+      position: absolute;
+      right: 28px;
+      width: 8px;
+      height: 8px;
+      background-color: #09c95e; /* Green indicator */
+      border-radius: 50%;
+    }
+
+    .app-container {
+      height: 100%;
+      overflow-y: auto; /* Allow scrolling within the app screen */
+      display: flex;
+      flex-direction: column;
+      position: relative; /* 确保相对定位子元素正确定位 */
+    }
+    
+    /* 确保所有应用内的绝对定位元素不会超出容器边界 */
+    .app-container * {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Hide scrollbar for a cleaner look */
+    .app-container::-webkit-scrollbar {
+      display: none;
+    }
+    .app-container {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+
+    .app-header-placeholder { /* Placeholder for status bar area */
+      height: 65px; /* Space for Dynamic Island + status bar */
+      width: 100%;
+    }
+    
+    .main-content {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding-bottom: 70px; /* Space for bottom tab bar */
+      position: relative; /* 为内部绝对定位元素提供参考 */
+      background-color: #f0f2f5;
+    }
+    
+    .main-content::-webkit-scrollbar {
+      display: none;
+    }
+    .main-content {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+
+    /* Status Bar iOS style */
+    .status-bar {
+      position: absolute;
+      top: 14px;
+      left: 0;
+      right: 0;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #000;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 150;
+    }
+
+    .status-time {
+      position: absolute;
+      left: 32px;
+    }
+
+    .status-indicators {
+      position: absolute;
+      right: 32px;
+      display: flex;
+      align-items: center;
+    }
+
+    .status-cell, .status-wifi, .status-battery {
+      margin-left: 8px;
+    }
+
+    /* Header/Nav Bar */
+    .header {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+      background-color: #f0f2f5;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .back-button {
+      position: absolute;
+      left: 15px;
+      color: #333;
+      font-size: 20px;
+      text-decoration: none;
+    }
+
+    /* 助教信息卡片样式 */
+    .assistant-card {
+      background-color: #f0f2f5;
+      padding: 20px;
+    }
+
+    .greeting {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .avatar-small {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: #d9e1fd;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+    }
+
+    .avatar-small img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .greeting-text {
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .congrats-text {
+      color: #666;
+      margin: 15px 0;
+      line-height: 1.5;
+    }
+
+    /* 添加助教区域 */
+    .add-assistant-section {
+      padding: 0 20px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 15px 0;
+      color: #333;
+      border-left: 4px solid #a4e52a;
+      padding-left: 10px;
+    }
+
+    /* 课程顾问卡片 */
+    .coach-card {
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .coach-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .coach-avatar-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .coach-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-right: 15px;
+    }
+
+    .coach-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .coach-info {
+      flex: 1;
+    }
+
+    .coach-name {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .coach-title {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .online-status {
+      color: #a4e52a;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #a4e52a;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+
+    .working-hours {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+
+    .coach-message {
+      color: #333;
+      font-size: 16px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .qrcode-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px 0;
+    }
+
+    .qrcode-image {
+      width: 200px;
+      height: 200px;
+      margin-bottom: 10px;
+    }
+
+    .qrcode-text {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .highlight {
+      color: #a4e52a;
+      font-weight: 600;
+    }
+
+    /* 服务内容列表 */
+    .service-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .service-item {
+      display: flex;
+      align-items: center;
+      font-size: 15px;
+      color: #333;
+    }
+
+    .service-number {
+      width: 24px;
+      height: 24px;
+      background-color: #a4e52a;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      margin-right: 10px;
+    }
+
+    /* 底部按钮 */
+    .bottom-button {
+      background-color: #a4e52a;
+      color: #000;
+      border: none;
+      border-radius: 30px;
+      padding: 15px 0;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 30px 20px;
+      cursor: pointer;
+      display: block;
+      width: calc(100% - 40px);
+      text-align: center;
+      text-decoration: none;
+    }
+
+    /* 上课方式说明 */
+    .lesson-mode-section {
+      padding: 0 20px;
+      margin-top: 20px;
+    }
+
+    .lesson-mode-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 15px 0;
+      color: #333;
+      border-left: 4px solid #a4e52a;
+      padding-left: 10px;
+    }
+
+    /* 底部文案区域 */
+    .bottom-info {
+      padding: 0 20px 30px;
+      color: #666;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="iphone-frame">
+    <div class="iphone-screen">
+      <div class="dynamic-island"></div>
+      
+      <div class="app-container">
+        <div class="app-header-placeholder"></div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+          <div class="status-time">5:13</div>
+          <div class="status-indicators">
+            <span class="status-cell"><i class="fas fa-signal"></i></span>
+            <span class="status-wifi"><i class="fas fa-wifi"></i></span>
+            <span class="status-battery">94<i class="fas fa-battery-three-quarters"></i></span>
+          </div>
+        </div>
+        
+        <!-- Header -->
+        <div class="header">
+          <a href="javascript:history.back()" class="back-button">
+            <i class="fas fa-chevron-left"></i>
+          </a>
+          <div class="header-title">添加助教</div>
+        </div>
+        
+        <div class="main-content">
+          <!-- 问候与祝贺信息 -->
+      
+          
+          <!-- 添加助教区域 -->
+          <div class="add-assistant-section">
+            <h2 class="section-title">添加助教</h2>
+            
+            <div class="coach-card">
+              <div class="coach-header">
+                <div class="coach-avatar-container">
+                  <div class="coach-avatar">
+                    <img src="images/coach-woman1.png" onerror="handleImageError(this)" alt="教练头像">
+                  </div>
+                  <div class="coach-info">
+                    <div class="coach-name">课程顾问心心</div>
+                    <div class="coach-title">专属助教</div>
+                  </div>
+                </div>
+                <div class="online-status">
+                  <div class="status-dot"></div>
+                  在线
+                </div>
+              </div>
+              
+              <div class="working-hours">10:00–21:00 快速响应</div>
+              
+              <div class="coach-message">
+                Hi，我是Deep Fit课程顾问心心，为你解决任何疑问，添加我，将为你推荐最合适的课程
+              </div>
+              
+              <div class="qrcode-container">
+                <img src="images/qrcode.png" onerror="handleImageError(this)" alt="二维码" class="qrcode-image">
+                <div class="qrcode-text">
+                  保存二维码添加你的 <span class="highlight">助理教练</span>
+                </div>
+              </div>
+              
+              <div class="service-list">
+                <div class="service-item">
+                  <div class="service-number">01</div>
+                  介绍上课特色、方式
+                </div>
+                <div class="service-item">
+                  <div class="service-number">04</div>
+                  寄出上课工具(如有)
+                </div>
+                <div class="service-item">
+                  <div class="service-number">02</div>
+                  训练规划与建议
+                </div>
+                <div class="service-item">
+                  <div class="service-number">05</div>
+                  介绍正式课程价格
+                </div>
+                <div class="service-item">
+                  <div class="service-number">03</div>
+                  帮你约课与改课
+                </div>
+                <div class="service-item">
+                  <div class="service-number">06</div>
+                  退款与发票等
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 上课方式说明 -->
+          <div class="lesson-mode-section">
+            <h2 class="lesson-mode-title">上课方式说明</h2>
+            <!-- 底部按钮 -->
+            <a href="javascript:;" class="bottom-button">跳转微信添加助教</a>
+          </div>
+          
+          <!-- 底部文案区域 -->
+          <div class="bottom-info">
+            <p>可进入DeepFit APP的【我的】-【个人主页】-【我的课程】中查看已购买的课程包</p>
+            <p>课程包有效期为购买日起的30天内，请在有效期内完成课程学习</p>
+            <p>如有任何问题，请联系您的专属助教获取帮助</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html> 
