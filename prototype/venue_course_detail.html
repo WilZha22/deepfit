@@ -146,7 +146,21 @@
     
     // 立即购买
     function buyNow() {
-      alert(translations[currentLang].purchaseStarted);
+      const courseId = document.getElementById('course-id').innerText;
+      const courseTitle = document.getElementById('course-title').innerText;
+      const coursePrice = document.getElementById('sale-price').innerText;
+      const courseImage = document.getElementById('course-image').src;
+      
+      // 构建URL参数
+      const params = new URLSearchParams({
+        id: courseId,
+        title: courseTitle,
+        price: coursePrice.replace('¥', ''),
+        image: courseImage
+      });
+      
+      // 跳转到支付页面
+      window.location.href = `venue_payment.html?${params.toString()}`;
     }
     
     // 多语言翻译对象
